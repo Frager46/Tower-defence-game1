@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6648905794209776797}
   - component: {fileID: 8366628665889020001}
   m_Layer: 0
-  m_Name: PlacerForUnit2
+  m_Name: PlaceForUnit2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,3 +99,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitPrefab: {fileID: 4620599371032029840, guid: b4fb504e65a0a884d824f6888f18ff5c, type: 3}
   yOffset: 0.5
+  unitType: 2
