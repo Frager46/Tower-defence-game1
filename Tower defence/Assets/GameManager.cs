@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public Button speedButton;
     public Text speedText;
     public Button backToMenuButton;
+    public Button mainMenuButton; // Кнопка для перехода в MainMenuScene
 
     [Header("Currency")]
     public int initialGold = 75;
@@ -80,7 +81,11 @@ public class GameManager : MonoBehaviour
         }
         else if (scene.name == "MapScene")
         {
-            SetupShop();
+            SetupUIForMapScene();
+        }
+        else if (scene.name == "MainMenuScene")
+        {
+            InitializeUI();
         }
     }
 
@@ -107,36 +112,33 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // Всегда ищем playButton заново, чтобы гарантировать актуальность
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas != null)
+        {
+            Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
+            foreach (Button btn in buttons)
+            {
+                if (btn.name.Contains("Play"))
+                {
+                    playButton = btn;
+                    Debug.Log($"GameManager: playButton найден динамически, имя: {btn.name}");
+                    break;
+                }
+            }
+        }
+
         if (playButton != null)
         {
+            playButton.gameObject.SetActive(true);
+            playButton.interactable = true;
             playButton.onClick.RemoveAllListeners();
             playButton.onClick.AddListener(StartGame);
-            playButton.gameObject.SetActive(true);
             Debug.Log($"GameManager: Назначен слушатель для playButton, интерактивен: {playButton.interactable}");
         }
         else
         {
-            Canvas canvas = FindObjectOfType<Canvas>();
-            if (canvas != null)
-            {
-                Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
-                foreach (Button btn in buttons)
-                {
-                    if (btn.name.Contains("Play"))
-                    {
-                        playButton = btn;
-                        playButton.onClick.RemoveAllListeners();
-                        playButton.onClick.AddListener(StartGame);
-                        playButton.gameObject.SetActive(true);
-                        Debug.Log($"GameManager: playButton найден динамически, интерактивен: {playButton.interactable}");
-                        break;
-                    }
-                }
-            }
-            if (playButton == null)
-            {
-                Debug.LogError("GameManager: playButton не назначен и не найден в MainMenuScene!");
-            }
+            Debug.LogError("GameManager: playButton не назначен и не найден в MainMenuScene!");
         }
 
         if (SceneManager.GetActiveScene().name == "MainMenuScene")
@@ -151,7 +153,7 @@ public class GameManager : MonoBehaviour
                 Debug.LogWarning("GameManager: mainMenuPanel не назначен в инспекторе!");
             }
         }
-        else if (SceneManager.GetActiveScene().name != "Level1Scene")
+        else
         {
             if (mainMenuPanel != null)
             {
@@ -203,45 +205,83 @@ public class GameManager : MonoBehaviour
 
         isGameActive = true;
 
-        if (pauseButton == null || speedButton == null || backToMenuButton == null || speedText == null || goldText == null)
+        Canvas levelCanvas = FindObjectOfType<Canvas>();
+        if (levelCanvas != null)
         {
-            Canvas levelCanvas = FindObjectOfType<Canvas>();
-            if (levelCanvas != null)
+            Debug.Log($"GameManager: Canvas найден, имя: {levelCanvas.gameObject.name}");
+            Button[] buttons = levelCanvas.GetComponentsInChildren<Button>(true);
+            Text[] texts = levelCanvas.GetComponentsInChildren<Text>(true);
+            TextMeshProUGUI[] tmpTexts = levelCanvas.GetComponentsInChildren<TextMeshProUGUI>(true);
+            Debug.Log($"GameManager: Найдено {texts.Length} Text компонентов и {tmpTexts.Length} TextMeshProUGUI компонентов в Canvas");
+
+            if (pauseButton == null)
             {
-                Debug.Log($"GameManager: Canvas найден, имя: {levelCanvas.gameObject.name}");
-                Button[] buttons = levelCanvas.GetComponentsInChildren<Button>(true);
-                Text[] texts = levelCanvas.GetComponentsInChildren<Text>(true);
-                TextMeshProUGUI[] tmpTexts = levelCanvas.GetComponentsInChildren<TextMeshProUGUI>(true);
-                Debug.Log($"GameManager: Найдено {texts.Length} Text компонентов и {tmpTexts.Length} TextMeshProUGUI компонентов в Canvas");
-
-                foreach (Text txt in texts)
-                {
-                    Debug.Log($"GameManager: Обнаружен Text объект: {txt.gameObject.name}");
-                    if (txt.name.Contains("Speed") && speedText == null) speedText = txt;
-                }
-
-                foreach (TextMeshProUGUI tmpTxt in tmpTexts)
-                {
-                    Debug.Log($"GameManager: Обнаружен TextMeshProUGUI объект: {tmpTxt.gameObject.name}");
-                    if (tmpTxt.name == "GoldText" && goldText == null)
-                    {
-                        goldText = tmpTxt;
-                        Debug.Log($"GameManager: GoldText найден, имя объекта: {goldText.gameObject.name}");
-                    }
-                }
-
                 foreach (Button btn in buttons)
                 {
-                    if (btn.name.Contains("Pause") && pauseButton == null) pauseButton = btn;
-                    if (btn.name.Contains("Speed") && speedButton == null) speedButton = btn;
-                    if (btn.name.Contains("Back") && backToMenuButton == null) backToMenuButton = btn;
+                    if (btn.name.Contains("Pause"))
+                    {
+                        pauseButton = btn;
+                        Debug.Log($"GameManager: pauseButton найден динамически, имя: {btn.name}");
+                        break;
+                    }
                 }
-                Debug.Log("GameManager: UI-объекты найдены динамически в Level1Scene");
             }
-            else
+
+            if (speedButton == null)
             {
-                Debug.LogError("GameManager: Canvas не найден в Level1Scene!");
+                foreach (Button btn in buttons)
+                {
+                    if (btn.name.Contains("Speed"))
+                    {
+                        speedButton = btn;
+                        Debug.Log($"GameManager: speedButton найден динамически, имя: {btn.name}");
+                        break;
+                    }
+                }
             }
+
+            if (backToMenuButton == null)
+            {
+                foreach (Button btn in buttons)
+                {
+                    if (btn.name.Contains("Back"))
+                    {
+                        backToMenuButton = btn;
+                        Debug.Log($"GameManager: backToMenuButton найден динамически, имя: {btn.name}");
+                        break;
+                    }
+                }
+            }
+
+            if (speedText == null)
+            {
+                foreach (Text txt in texts)
+                {
+                    if (txt.name.Contains("Speed"))
+                    {
+                        speedText = txt;
+                        Debug.Log($"GameManager: speedText найден динамически, имя: {txt.name}");
+                        break;
+                    }
+                }
+            }
+
+            if (goldText == null)
+            {
+                foreach (TextMeshProUGUI tmpTxt in tmpTexts)
+                {
+                    if (tmpTxt.name == "GoldText")
+                    {
+                        goldText = tmpTxt;
+                        Debug.Log($"GameManager: GoldText найден динамически, имя: {tmpTxt.name}");
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("GameManager: Canvas не найден в Level1Scene!");
         }
 
         if (mainMenuPanel != null)
@@ -267,37 +307,40 @@ public class GameManager : MonoBehaviour
         if (pauseButton != null)
         {
             pauseButton.gameObject.SetActive(true);
+            pauseButton.interactable = true;
             pauseButton.onClick.RemoveAllListeners();
             pauseButton.onClick.AddListener(TogglePause);
             Debug.Log($"GameManager: pauseButton активирован, интерактивен: {pauseButton.interactable}");
         }
         else
         {
-            Debug.LogError("GameManager: pauseButton не назначен или не найден в Level1Scene!");
+            Debug.LogError("GameManager: pauseButton не назначен и не найден в Level1Scene!");
         }
 
         if (speedButton != null)
         {
             speedButton.gameObject.SetActive(true);
+            speedButton.interactable = true;
             speedButton.onClick.RemoveAllListeners();
             speedButton.onClick.AddListener(ChangeSpeed);
             Debug.Log($"GameManager: speedButton активирован, интерактивен: {speedButton.interactable}");
         }
         else
         {
-            Debug.LogError("GameManager: speedButton не назначен или не найден в Level1Scene!");
+            Debug.LogError("GameManager: speedButton не назначен и не найден в Level1Scene!");
         }
 
         if (backToMenuButton != null)
         {
             backToMenuButton.gameObject.SetActive(true);
+            backToMenuButton.interactable = true;
             backToMenuButton.onClick.RemoveAllListeners();
-            backToMenuButton.onClick.AddListener(ShowMenu);
+            backToMenuButton.onClick.AddListener(BackToMap);
             Debug.Log($"GameManager: backToMenuButton активирован, интерактивен: {backToMenuButton.interactable}");
         }
         else
         {
-            Debug.LogError("GameManager: backToMenuButton не назначен или не найден в Level1Scene!");
+            Debug.LogError("GameManager: backToMenuButton не назначен и не найден в Level1Scene!");
         }
 
         if (speedText != null)
@@ -307,7 +350,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: speedText не назначен или не найден в Level1Scene!");
+            Debug.LogError("GameManager: speedText не назначен и не найден в Level1Scene!");
         }
 
         if (goldText != null)
@@ -324,7 +367,7 @@ public class GameManager : MonoBehaviour
         LevelManager levelManager = FindObjectOfType<LevelManager>();
         if (levelManager == null)
         {
-            Debug.LogError("GameManager: LevelManager не найден в сцене Level1Scene!");
+            Debug.LogError("GameManager: LevelManager не найден в Level1Scene!");
             yield break;
         }
 
@@ -338,9 +381,9 @@ public class GameManager : MonoBehaviour
         UpdateSpeedText();
     }
 
-    public void ShowMenu()
+    public void BackToMap()
     {
-        Debug.Log("GameManager: ShowMenu вызван");
+        Debug.Log("GameManager: BackToMap вызван");
         isGameActive = false;
 
         if (LevelManager.main != null)
@@ -350,78 +393,172 @@ public class GameManager : MonoBehaviour
             Debug.Log("GameManager: LevelManager.main сброшен");
         }
 
-        if (pauseButton != null)
-        {
-            pauseButton.gameObject.SetActive(false);
-            pauseButton = null;
-            Debug.Log("GameManager: pauseButton сброшен");
-        }
-        if (speedButton != null)
-        {
-            speedButton.gameObject.SetActive(false);
-            speedButton = null;
-            Debug.Log("GameManager: speedButton сброшен");
-        }
-        if (backToMenuButton != null)
-        {
-            backToMenuButton.gameObject.SetActive(false);
-            backToMenuButton = null;
-            Debug.Log("GameManager: backToMenuButton сброшен");
-        }
-        if (speedText != null)
-        {
-            speedText = null;
-            Debug.Log("GameManager: speedText сброшен");
-        }
-        if (goldText != null)
-        {
-            goldText = null;
-            Debug.Log("GameManager: goldText сброшен");
-        }
+        SceneManager.LoadScene("MapScene");
+    }
+
+    public void ShowMainMenu()
+    {
+        Debug.Log("GameManager: ShowMainMenu вызван");
+        isGameActive = false;
 
         gold = initialGold;
         Debug.Log($"GameManager: Золото сброшено до {gold}");
 
         SceneManager.LoadScene("MainMenuScene");
-        SceneManager.sceneLoaded += OnMainMenuSceneLoaded;
     }
 
-    private void OnMainMenuSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void SetupUIForMapScene()
     {
-        if (scene.name == "MainMenuScene")
+        Debug.Log("GameManager: SetupUIForMapScene вызван");
+
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas != null)
         {
-            Debug.Log("GameManager: MainMenuScene загружена, инициализация UI");
-            InitializeUI();
-
-            if (mainMenuPanel != null)
+            Button[] buttons = canvas.GetComponentsInChildren<Button>(true);
+            foreach (Button btn in buttons)
             {
-                mainMenuPanel.SetActive(true);
-                Debug.Log("GameManager: mainMenuPanel активирован в MainMenuScene");
-            }
-
-            if (gameplayUI != null)
-            {
-                gameplayUI.SetActive(false);
-                Debug.Log("GameManager: gameplayUI деактивирован");
-            }
-
-            foreach (GameObject obj in gameplayObjects)
-            {
-                if (obj != null)
+                if (btn.name.Contains("Shop") && shopButton == null)
                 {
-                    obj.SetActive(false);
+                    shopButton = btn;
+                    Debug.Log($"GameManager: shopButton найден динамически, имя: {btn.name}");
+                }
+                if (btn.name.Contains("MainMenu") && mainMenuButton == null)
+                {
+                    mainMenuButton = btn;
+                    Debug.Log($"GameManager: mainMenuButton найден динамически, имя: {btn.name}");
+                }
+                if (btn.name.Contains("Unit1") && placeForUnit1Button == null)
+                {
+                    placeForUnit1Button = btn;
+                    Debug.Log($"GameManager: placeForUnit1Button найден динамически, имя: {btn.name}");
+                }
+                if (btn.name.Contains("Unit2") && placeForUnit2Button == null)
+                {
+                    placeForUnit2Button = btn;
+                    Debug.Log($"GameManager: placeForUnit2Button найден динамически, имя: {btn.name}");
+                }
+                if (btn.name.Contains("Unit3") && placeForUnit3Button == null)
+                {
+                    placeForUnit3Button = btn;
+                    Debug.Log($"GameManager: placeForUnit3Button найден динамически, имя: {btn.name}");
                 }
             }
 
-            DestroyAllEnemies();
-            DestroyAllUnits();
+            if (shopPanel == null)
+            {
+                shopPanel = GameObject.Find("ShopPanel");
+                if (shopPanel != null)
+                {
+                    Debug.Log($"GameManager: shopPanel найден динамически, имя: {shopPanel.name}");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("GameManager: Canvas не найден в MapScene!");
+        }
 
-            isPaused = false;
-            Time.timeScale = 1;
-            currentSpeed = 1;
-            UpdateSpeedText();
+        if (mainMenuButton != null)
+        {
+            mainMenuButton.gameObject.SetActive(true);
+            mainMenuButton.interactable = true;
+            mainMenuButton.onClick.RemoveAllListeners();
+            mainMenuButton.onClick.AddListener(ShowMainMenu);
+            Debug.Log($"GameManager: mainMenuButton настроен, интерактивен: {mainMenuButton.interactable}");
+        }
+        else
+        {
+            Debug.LogError("GameManager: mainMenuButton не назначен и не найден в MapScene!");
+        }
 
-            SceneManager.sceneLoaded -= OnMainMenuSceneLoaded;
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+            Debug.Log("GameManager: shopPanel деактивирован");
+        }
+        else
+        {
+            Debug.LogError("GameManager: shopPanel не найден в MapScene!");
+        }
+
+        if (shopButton != null)
+        {
+            shopButton.gameObject.SetActive(true);
+            shopButton.interactable = true;
+            shopButton.onClick.RemoveAllListeners();
+            shopButton.onClick.AddListener(OpenShop);
+            Debug.Log($"GameManager: shopButton настроен, интерактивен: {shopButton.interactable}");
+        }
+        else
+        {
+            Debug.LogError("GameManager: shopButton не назначен и не найден в MapScene!");
+        }
+
+        if (placeForUnit1Button != null)
+        {
+            placeForUnit1Button.gameObject.SetActive(true);
+            placeForUnit1Button.interactable = true;
+            placeForUnit1Button.onClick.RemoveAllListeners();
+            placeForUnit1Button.onClick.AddListener(() => BuyPlaceForUnit(1));
+            Debug.Log($"GameManager: placeForUnit1Button настроен, интерактивен: {placeForUnit1Button.interactable}");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: placeForUnit1Button не найден в MapScene!");
+        }
+
+        if (placeForUnit2Button != null)
+        {
+            placeForUnit2Button.gameObject.SetActive(true);
+            placeForUnit2Button.interactable = level1Completed;
+            if (!level1Completed && lockSprite != null)
+            {
+                placeForUnit2Button.GetComponent<Image>().sprite = lockSprite;
+            }
+            placeForUnit2Button.onClick.RemoveAllListeners();
+            placeForUnit2Button.onClick.AddListener(() => BuyPlaceForUnit(2));
+            Debug.Log($"GameManager: placeForUnit2Button настроен, интерактивен: {placeForUnit2Button.interactable}");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: placeForUnit2Button не найден в MapScene!");
+        }
+
+        if (placeForUnit3Button != null)
+        {
+            placeForUnit3Button.gameObject.SetActive(true);
+            placeForUnit3Button.interactable = level2Completed;
+            if (!level2Completed && lockSprite != null)
+            {
+                placeForUnit3Button.GetComponent<Image>().sprite = lockSprite;
+            }
+            placeForUnit3Button.onClick.RemoveAllListeners();
+            placeForUnit3Button.onClick.AddListener(() => BuyPlaceForUnit(3));
+            Debug.Log($"GameManager: placeForUnit3Button настроен, интерактивен: {placeForUnit3Button.interactable}");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: placeForUnit3Button не найден в MapScene!");
+        }
+
+        if (gameplayUI != null)
+        {
+            gameplayUI.SetActive(true);
+            Debug.Log("GameManager: gameplayUI активирован в MapScene");
+        }
+
+        if (mainMenuPanel != null)
+        {
+            mainMenuPanel.SetActive(false);
+            Debug.Log("GameManager: mainMenuPanel деактивирован в MapScene");
+        }
+
+        foreach (GameObject obj in gameplayObjects)
+        {
+            if (obj != null)
+            {
+                obj.SetActive(true);
+            }
         }
     }
 
@@ -545,7 +682,6 @@ public class GameManager : MonoBehaviour
         {
             if (!isShopOpen)
             {
-                // Скрываем все объекты сцены
                 foreach (GameObject obj in sceneObjectsToHide)
                 {
                     if (obj != null)
@@ -559,9 +695,12 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // Закрываем магазин при повторном нажатии
                 CloseShop();
             }
+        }
+        else
+        {
+            Debug.LogError("GameManager: shopPanel не назначен и не найден в MapScene!");
         }
     }
 
@@ -570,7 +709,6 @@ public class GameManager : MonoBehaviour
         if (shopPanel != null)
         {
             shopPanel.SetActive(false);
-            // Восстанавливаем видимость объектов сцены
             foreach (GameObject obj in sceneObjectsToHide)
             {
                 if (obj != null)
@@ -589,58 +727,10 @@ public class GameManager : MonoBehaviour
         if (SpendGold(cost))
         {
             Debug.Log($"PlaceForUnit {type} разблокировано!");
-            // Здесь можно добавить логику активации PlaceForUnit в игре
             if (type == 2 && !level1Completed) level1Completed = true;
             if (type == 3 && !level2Completed) level2Completed = true;
-            SetupShop();
-            CloseShop(); // Закрываем магазин после успешной покупки
-        }
-    }
-
-    private void SetupShop()
-    {
-        if (shopPanel != null)
-        {
-            shopPanel.SetActive(false); // По умолчанию закрыт
-
-            if (shopButton != null)
-            {
-                shopButton.onClick.RemoveAllListeners();
-                shopButton.onClick.AddListener(OpenShop);
-                Debug.Log("GameManager: Слушатель для shopButton назначен");
-            }
-
-            if (placeForUnit1Button != null)
-            {
-                placeForUnit1Button.interactable = true;
-                placeForUnit1Button.onClick.RemoveAllListeners();
-                placeForUnit1Button.onClick.AddListener(() => BuyPlaceForUnit(1));
-                Debug.Log("GameManager: placeForUnit1Button настроен");
-            }
-
-            if (placeForUnit2Button != null)
-            {
-                placeForUnit2Button.interactable = level1Completed;
-                if (!level1Completed && lockSprite != null)
-                {
-                    placeForUnit2Button.GetComponent<Image>().sprite = lockSprite;
-                }
-                placeForUnit2Button.onClick.RemoveAllListeners();
-                placeForUnit2Button.onClick.AddListener(() => BuyPlaceForUnit(2));
-                Debug.Log("GameManager: placeForUnit2Button настроен");
-            }
-
-            if (placeForUnit3Button != null)
-            {
-                placeForUnit3Button.interactable = level2Completed;
-                if (!level2Completed && lockSprite != null)
-                {
-                    placeForUnit3Button.GetComponent<Image>().sprite = lockSprite;
-                }
-                placeForUnit3Button.onClick.RemoveAllListeners();
-                placeForUnit3Button.onClick.AddListener(() => BuyPlaceForUnit(3));
-                Debug.Log("GameManager: placeForUnit3Button настроен");
-            }
+            SetupUIForMapScene(); // Переконфигурируем UI после покупки
+            CloseShop();
         }
     }
 
@@ -648,7 +738,7 @@ public class GameManager : MonoBehaviour
     {
         if (level == 1) level1Completed = true;
         if (level == 2) level2Completed = true;
-        SetupShop(); // Обновляем состояние кнопок
+        SetupUIForMapScene(); // Переконфигурируем UI после завершения уровня
         Debug.Log($"GameManager: Уровень {level} пройден, обновлён магазин");
     }
 }
