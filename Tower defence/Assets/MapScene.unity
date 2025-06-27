@@ -160,6 +160,7 @@ MonoBehaviour:
   speedText: {fileID: 0}
   backToMenuButton: {fileID: 0}
   mainMenuButton: {fileID: 1313974408}
+  level2Button: {fileID: 0}
   initialGold: 75
   shopPanel: {fileID: 1246574314}
   shopButton: {fileID: 737579632}
@@ -566,6 +567,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   level1Button: {fileID: 1298677703}
+  level2Button: {fileID: 475426505}
   shopButton: {fileID: 737579632}
 --- !u!4 &297171145
 Transform:
@@ -873,7 +875,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 475426506}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 178818285}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: StartLevelGameplay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &475426506
 MonoBehaviour:
   m_ObjectHideFlags: 0

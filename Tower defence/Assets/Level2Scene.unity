@@ -455,48 +455,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 157769559}
-  - component: {fileID: 157769558}
+  - component: {fileID: 157769560}
   m_Layer: 0
-  m_Name: LevelManager
+  m_Name: Level2Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &157769558
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 157769557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8cf48a96b7188747bd02f2fedddef39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StartPoint: {fileID: 729895768}
-  path:
-  - {fileID: 1774961632}
-  - {fileID: 260075243}
-  - {fileID: 409487824}
-  - {fileID: 1797600677}
-  - {fileID: 367018996}
-  - {fileID: 490385230}
-  - {fileID: 2050148161}
-  - {fileID: 82021061}
-  - {fileID: 1900044241}
-  enemyPrefab: {fileID: 5905140543130763069, guid: 2e3fdd78c44e3b249b484705b13734de, type: 3}
-  spawnPoint: {fileID: 729895768}
-  waves:
-  - enemyCount: 4
-    spawnDelay: 1.3
-  - enemyCount: 5
-    spawnDelay: 1.3
-  - enemyCount: 6
-    spawnDelay: 1.3
-  villageHealth: {fileID: 640905895}
-  waveDelay: 35
 --- !u!4 &157769559
 Transform:
   m_ObjectHideFlags: 0
@@ -512,6 +478,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &157769560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157769557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb9233bd4b62fab4fa092ba673f4c839, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartPoint: {fileID: 729895768}
+  path:
+  - {fileID: 1774961632}
+  - {fileID: 260075243}
+  - {fileID: 409487824}
+  - {fileID: 1797600677}
+  - {fileID: 367018996}
+  - {fileID: 490385230}
+  - {fileID: 2050148161}
+  - {fileID: 82021061}
+  - {fileID: 1900044241}
+  enemyPrefab: {fileID: 4212886607573048088, guid: a27610f08c0a50441bb0c246d3d78082, type: 3}
+  spawnPoint: {fileID: 729895768}
+  waves:
+  - enemyCount: 4
+    spawnDelay: 1.2
+  - enemyCount: 5
+    spawnDelay: 1.2
+  villageHealth: {fileID: 640905895}
+  waveDelay: 2
 --- !u!1 &222783754
 GameObject:
   m_ObjectHideFlags: 0
@@ -12309,6 +12307,7 @@ MonoBehaviour:
   speedText: {fileID: 0}
   backToMenuButton: {fileID: 1925299840}
   mainMenuButton: {fileID: 0}
+  level2Button: {fileID: 0}
   initialGold: 75
   shopPanel: {fileID: 0}
   shopButton: {fileID: 0}

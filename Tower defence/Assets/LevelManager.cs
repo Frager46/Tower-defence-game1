@@ -33,7 +33,6 @@ public class LevelManager : MonoBehaviour
             main = this;
             Debug.Log("LevelManager: Awake вызван, объект активен: " + gameObject.activeInHierarchy);
         }
-        // Убираем условие сцены, чтобы инициализация работала при любой загрузке
     }
 
     private void Start()

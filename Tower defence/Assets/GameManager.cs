@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public Text speedText;
     public Button backToMenuButton;
     public Button mainMenuButton; // Кнопка для перехода в MainMenuScene
+    public Button level2Button; // Кнопка для запуска Level2Scene
 
     [Header("Currency")]
     public int initialGold = 75;
@@ -75,7 +76,7 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"GameManager: Сцена {scene.name} загружена");
-        if (scene.name == "Level1Scene")
+        if (scene.name == "Level1Scene" || scene.name == "Level2Scene")
         {
             StartCoroutine(DelayedStartLevelGameplay());
         }
@@ -112,7 +113,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Всегда ищем playButton заново, чтобы гарантировать актуальность
         Canvas canvas = FindObjectOfType<Canvas>();
         if (canvas != null)
         {
@@ -281,7 +281,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: Canvas не найден в Level1Scene!");
+            Debug.LogError("GameManager: Canvas не найден в текущей сцене!");
         }
 
         if (mainMenuPanel != null)
@@ -314,7 +314,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: pauseButton не назначен и не найден в Level1Scene!");
+            Debug.LogError("GameManager: pauseButton не назначен и не найден в текущей сцене!");
         }
 
         if (speedButton != null)
@@ -327,7 +327,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: speedButton не назначен и не найден в Level1Scene!");
+            Debug.LogError("GameManager: speedButton не назначен и не найден в текущей сцене!");
         }
 
         if (backToMenuButton != null)
@@ -340,7 +340,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: backToMenuButton не назначен и не найден в Level1Scene!");
+            Debug.LogError("GameManager: backToMenuButton не назначен и не найден в текущей сцене!");
         }
 
         if (speedText != null)
@@ -350,7 +350,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: speedText не назначен и не найден в Level1Scene!");
+            Debug.LogError("GameManager: speedText не назначен и не найден в текущей сцене!");
         }
 
         if (goldText != null)
@@ -361,19 +361,33 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager: GoldText не найден в Level1Scene!");
+            Debug.LogError("GameManager: GoldText не найден в текущей сцене!");
         }
 
-        LevelManager levelManager = FindObjectOfType<LevelManager>();
-        if (levelManager == null)
+        if (SceneManager.GetActiveScene().name == "Level1Scene")
         {
-            Debug.LogError("GameManager: LevelManager не найден в Level1Scene!");
-            yield break;
+            LevelManager levelManager = FindObjectOfType<LevelManager>();
+            if (levelManager == null)
+            {
+                Debug.LogError("GameManager: LevelManager не найден в Level1Scene!");
+                yield break;
+            }
+            LevelManager.main = levelManager;
+            Debug.Log("GameManager: LevelManager найден, вызываем StartGame");
+            levelManager.StartGame();
         }
-
-        LevelManager.main = levelManager;
-        Debug.Log("GameManager: LevelManager найден, вызываем StartGame");
-        levelManager.StartGame();
+        else if (SceneManager.GetActiveScene().name == "Level2Scene")
+        {
+            Level2Manager level2Manager = FindObjectOfType<Level2Manager>();
+            if (level2Manager == null)
+            {
+                Debug.LogError("GameManager: Level2Manager не найден в Level2Scene!");
+                yield break;
+            }
+            Level2Manager.main = level2Manager;
+            Debug.Log("GameManager: Level2Manager найден, вызываем StartGame");
+            level2Manager.StartGame();
+        }
 
         isPaused = false;
         Time.timeScale = 1;
@@ -386,11 +400,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager: BackToMap вызван");
         isGameActive = false;
 
-        if (LevelManager.main != null)
+        if (SceneManager.GetActiveScene().name == "Level1Scene" && LevelManager.main != null)
         {
             LevelManager.main.StopGame();
             LevelManager.main = null;
             Debug.Log("GameManager: LevelManager.main сброшен");
+        }
+        else if (SceneManager.GetActiveScene().name == "Level2Scene" && Level2Manager.main != null)
+        {
+            Level2Manager.main.StopGame();
+            Level2Manager.main = null;
+            Debug.Log("GameManager: Level2Manager.main сброшен");
         }
 
         SceneManager.LoadScene("MapScene");
@@ -441,6 +461,11 @@ public class GameManager : MonoBehaviour
                 {
                     placeForUnit3Button = btn;
                     Debug.Log($"GameManager: placeForUnit3Button найден динамически, имя: {btn.name}");
+                }
+                if (btn.name.Contains("Level2") && level2Button == null)
+                {
+                    level2Button = btn;
+                    Debug.Log($"GameManager: level2Button найден динамически, имя: {btn.name}");
                 }
             }
 
@@ -539,6 +564,19 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("GameManager: placeForUnit3Button не найден в MapScene!");
+        }
+
+        if (level2Button != null)
+        {
+            level2Button.gameObject.SetActive(true);
+            level2Button.interactable = true; // Доступен только после завершения первого уровня
+            level2Button.onClick.RemoveAllListeners();
+            level2Button.onClick.AddListener(() => SceneManager.LoadScene("Level2Scene"));
+            Debug.Log($"GameManager: level2Button настроен, интерактивен: {level2Button.interactable}");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager: level2Button не найден в MapScene!");
         }
 
         if (gameplayUI != null)

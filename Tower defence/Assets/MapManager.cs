@@ -6,11 +6,13 @@ public class MapManager : MonoBehaviour
 {
     [Header("UI Buttons")]
     public Button level1Button;
-    public Button shopButton; // Добавлена кнопка магазина
+    public Button level2Button; // Добавлена кнопка второго уровня
+    public Button shopButton; // Кнопка магазина
 
     void Start()
     {
         Debug.Log("MapManager Start вызван в сцене: " + SceneManager.GetActiveScene().name);
+        
         if (level1Button != null)
         {
             level1Button.onClick.AddListener(LoadLevel1);
@@ -19,6 +21,16 @@ public class MapManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Кнопка первого уровня не назначена в MapManager!");
+        }
+
+        if (level2Button != null)
+        {
+            level2Button.onClick.AddListener(LoadLevel2);
+            Debug.Log("Событие LoadLevel2 назначено на кнопку level2Button");
+        }
+        else
+        {
+            Debug.LogWarning("Кнопка второго уровня не назначена в MapManager!");
         }
 
         if (shopButton != null)
@@ -39,11 +51,18 @@ public class MapManager : MonoBehaviour
         SceneManager.LoadScene("Level1Scene");
     }
 
+    public void LoadLevel2()
+    {
+        Debug.Log("Метод LoadLevel2 вызван, пытаемся перейти на Level2Scene...");
+        SceneManager.sceneLoaded += OnSceneLoaded; // Подписываемся на событие загрузки сцены
+        SceneManager.LoadScene("Level2Scene");
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "Level1Scene")
+        if (scene.name == "Level1Scene" || scene.name == "Level2Scene")
         {
-            Debug.Log("Level1Scene полностью загружена");
+            Debug.Log($"{scene.name} полностью загружена");
             if (GameManager.Instance != null)
             {
                 Debug.Log("GameManager найден, вызываем StartLevelGameplay...");
