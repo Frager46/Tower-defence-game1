@@ -5,7 +5,7 @@ public class PlaceForUnit : MonoBehaviour
     public GameObject unitPrefab;
     public float yOffset = 0.5f;
     private GameObject placedUnit;
-    private GameManager gameManager;
+    private LevelsManager levelsManager;
     private bool isPlaced = false;
     private bool hasAttemptedSpawn = false;
 
@@ -19,10 +19,10 @@ public class PlaceForUnit : MonoBehaviour
             return;
         }
 
-        gameManager = FindObjectOfType<GameManager>();
-        if (gameManager == null)
+        levelsManager = FindObjectOfType<LevelsManager>();
+        if (levelsManager == null)
         {
-            Debug.LogError($"PlaceForUnit {gameObject.name}: GameManager не найден в сцене! Юнит не будет создан.");
+            Debug.LogError($"PlaceForUnit {gameObject.name}: LevelsManager не найден в сцене! Юнит не будет создан.");
             return;
         }
 
@@ -52,7 +52,7 @@ public class PlaceForUnit : MonoBehaviour
     {
         if (!isPlaced) return;
 
-        if (!gameManager.IsGameActive())
+        if (!levelsManager.IsGameActive())
         {
             if (placedUnit != null)
             {

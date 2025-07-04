@@ -16,14 +16,21 @@ public class PlacementManager : MonoBehaviour
     private GameObject previewObject;
     private bool isPlacing = false;
     private GameObject currentPrefab;
-    private GameManager gameManager;
+    private GameState gameState;
+    private LevelsManager levelsManager;
 
     private void Start()
     {
-        gameManager = GameManager.Instance;
-        if (gameManager == null)
+        gameState = GameState.Instance;
+        levelsManager = LevelsManager.Instance;
+        if (gameState == null)
         {
-            Debug.LogError("PlacementManager: GameManager не найден!");
+            Debug.LogError("PlacementManager: GameState не найден!");
+            return;
+        }
+        if (levelsManager == null)
+        {
+            Debug.LogError("PlacementManager: LevelsManager не найден!");
             return;
         }
 
@@ -79,7 +86,7 @@ public class PlacementManager : MonoBehaviour
     {
         UpdateButtonStates();
 
-        if (isPlacing && previewObject != null)
+        if (isPlacing && previewObject != null && levelsManager.IsGameActive())
         {
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0;
@@ -99,20 +106,20 @@ public class PlacementManager : MonoBehaviour
 
     private void UpdateButtonStates()
     {
-        int currentGold = gameManager.GetGold();
+        int currentGold = gameState.GetGold();
         if (placeUnit1Button != null)
-            placeUnit1Button.interactable = currentGold >= PLACE_UNIT1_COST;
+            placeUnit1Button.interactable = currentGold >= PLACE_UNIT1_COST && levelsManager.IsGameActive();
         if (placeUnit2Button != null)
-            placeUnit2Button.interactable = currentGold >= PLACE_UNIT2_COST;
+            placeUnit2Button.interactable = currentGold >= PLACE_UNIT2_COST && levelsManager.IsGameActive();
         if (placeUnit3Button != null)
-            placeUnit3Button.interactable = currentGold >= PLACE_UNIT3_COST;
+            placeUnit3Button.interactable = currentGold >= PLACE_UNIT3_COST && levelsManager.IsGameActive();
     }
 
     private void StartPlacement(GameObject prefab, int cost)
     {
-        if (gameManager == null) return;
+        if (gameState == null || levelsManager == null || !levelsManager.IsGameActive()) return;
 
-        if (gameManager.SpendGold(cost))
+        if (gameState.SpendGold(cost))
         {
             currentPrefab = prefab;
             // —оздаЄм previewObject с отключЄнным PlaceForUnit

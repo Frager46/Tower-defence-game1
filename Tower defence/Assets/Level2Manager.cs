@@ -9,64 +9,63 @@ public class Level2Manager : MonoBehaviour
 
     [Header("Path Settings")]
     public Transform StartPoint;
-    public Transform[] path; // Путь для всех врагов
+    public Transform[] path;
 
     [Header("Wave Settings")]
-    public GameObject enemyPrefab; // Префаб врага
-    public Transform spawnPoint; // Точка спавна для всех врагов
-    public List<Wave> waves = new List<Wave>(); // Используем Wave из LevelManager.cs
-    public VillageHealth villageHealth; // Ссылка на VillageHealth
+    public GameObject enemyPrefab;
+    public Transform spawnPoint;
+    public List<Wave> waves = new List<Wave>();
+    public VillageHealth villageHealth;
 
     [Header("Wave Delay")]
-    public float waveDelay = 2f; // Задержка между волнами
+    public float waveDelay = 2f;
 
     private int currentWave = 0;
     private bool waveInProgress = false;
     private bool gameStarted = false;
-    private int enemiesInCurrentWave = 0; // Количество врагов в текущей волне
-    private int enemiesReachedEnd = 0; // Количество врагов, достигших конца
+    private int enemiesInCurrentWave = 0;
+    private int enemiesReachedEnd = 0;
 
     private void Awake()
     {
         if (main == null)
         {
             main = this;
-            Debug.Log("Level2Manager: Awake вызван, объект активен: " + gameObject.activeInHierarchy);
+            Debug.Log("Level2Manager: Awake called, object active: " + gameObject.activeInHierarchy);
         }
     }
 
     private void Start()
     {
         gameStarted = false;
-        Debug.Log("Level2Manager: Start вызван, waves count: " + waves.Count);
+        Debug.Log("Level2Manager: Start called, waves count: " + waves.Count);
         if (enemyPrefab == null) Debug.LogError("Level2Manager: enemyPrefab is null!");
         if (spawnPoint == null) Debug.LogError("Level2Manager: spawnPoint is null!");
         if (path == null || path.Length == 0) Debug.LogError("Level2Manager: path is null or empty!");
-        if (villageHealth == null) Debug.LogError("Level2Manager: villageHealth is null в Start!");
+        if (villageHealth == null) Debug.LogError("Level2Manager: villageHealth is null in Start!");
         foreach (Wave wave in waves)
         {
             Debug.Log($"Level2Manager: Wave: enemyCount={wave.enemyCount}, spawnDelay={wave.spawnDelay}");
         }
-        SceneManager.sceneLoaded += OnSceneLoaded; // Подписываемся на событие загрузки сцены
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDestroy()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded; // Отписываемся при уничтожении
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "Level2Scene")
         {
-            Debug.Log("Level2Manager: Сцена Level2Scene загружена");
-            // Очистка остаточных врагов
+            Debug.Log("Level2Manager: Level2Scene loaded");
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             foreach (GameObject enemy in enemies)
             {
-                if (enemy != null && enemy != gameObject) // Исключаем сам Level2Manager
+                if (enemy != null && enemy != gameObject)
                 {
-                    Debug.Log($"Level2Manager: Уничтожение остаточного врага: {enemy.name}");
+                    Debug.Log($"Level2Manager: Destroying residual enemy: {enemy.name}");
                     Destroy(enemy);
                 }
             }
@@ -75,14 +74,14 @@ public class Level2Manager : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("Level2Manager: StartGame вызван");
+        Debug.Log("Level2Manager: StartGame called");
         gameStarted = true;
         StartCoroutine(StartWaves());
     }
 
     public void StopGame()
     {
-        Debug.Log("Level2Manager: StopGame вызван");
+        Debug.Log("Level2Manager: StopGame called");
         StopAllCoroutines();
         currentWave = 0;
         waveInProgress = false;
@@ -92,7 +91,7 @@ public class Level2Manager : MonoBehaviour
     public void NotifyEnemyReachedEnd()
     {
         enemiesReachedEnd++;
-        Debug.Log($"Level2Manager: Враг достиг конца пути, всего достигло: {enemiesReachedEnd} из {enemiesInCurrentWave}");
+        Debug.Log($"Level2Manager: Enemy reached end, total: {enemiesReachedEnd} of {enemiesInCurrentWave}");
 
         if (enemiesReachedEnd >= enemiesInCurrentWave && villageHealth != null)
         {
@@ -102,14 +101,14 @@ public class Level2Manager : MonoBehaviour
 
     IEnumerator StartWaves()
     {
-        Debug.Log($"Level2Manager: StartWaves начат, всего волн: {waves.Count}, currentWave: {currentWave}");
+        Debug.Log($"Level2Manager: StartWaves started, total waves: {waves.Count}, currentWave: {currentWave}");
         while (currentWave < waves.Count && gameStarted)
         {
             if (!waveInProgress)
             {
-                Debug.Log($"Level2Manager: Спавним волну {currentWave + 1}");
-                enemiesInCurrentWave = waves[currentWave].enemyCount; // Устанавливаем количество врагов в волне
-                enemiesReachedEnd = 0; // Сбрасываем счётчик
+                Debug.Log($"Level2Manager: Spawning wave {currentWave + 1}");
+                enemiesInCurrentWave = waves[currentWave].enemyCount;
+                enemiesReachedEnd = 0;
                 yield return StartCoroutine(SpawnWave(waves[currentWave]));
                 currentWave++;
             }
@@ -119,20 +118,23 @@ public class Level2Manager : MonoBehaviour
             }
             if (currentWave < waves.Count)
             {
-                Debug.Log($"Level2Manager: Ожидание {waveDelay} секунд перед следующей волной");
+                Debug.Log($"Level2Manager: Waiting {waveDelay} seconds before next wave");
                 yield return new WaitForSeconds(waveDelay);
             }
         }
         if (currentWave >= waves.Count && villageHealth != null && villageHealth.GetCurrentHealth() > 0)
         {
-            GameManager.Instance.CompleteLevel(2); // Уровень 2 пройден
-            Debug.Log("Level2Manager: Уровень 2 завершён, уведомление GameManager");
+            if (GameState.Instance != null)
+            {
+                GameState.Instance.CompleteLevel(2);
+                Debug.Log("Level2Manager: Level 2 completed, notified GameState");
+            }
         }
     }
 
     IEnumerator SpawnWave(Wave wave)
     {
-        Debug.Log($"Level2Manager: SpawnWave начат, enemyCount={wave.enemyCount}");
+        Debug.Log($"Level2Manager: SpawnWave started, enemyCount={wave.enemyCount}");
         waveInProgress = true;
 
         Coroutine enemyCoroutine = StartCoroutine(SpawnEnemies(wave.enemyCount, wave.spawnDelay));
@@ -154,7 +156,7 @@ public class Level2Manager : MonoBehaviour
     {
         if (!gameStarted)
         {
-            Debug.LogWarning("Level2Manager: SpawnEnemy пропущен, игра не начата");
+            Debug.LogWarning("Level2Manager: SpawnEnemy skipped, game not started");
             return;
         }
 
@@ -164,17 +166,17 @@ public class Level2Manager : MonoBehaviour
 
         if (enemyPrefab != null && spawnPoint != null && path != null && path.Length > 0)
         {
-            Debug.Log($"Level2Manager: Спавним врага на позиции {spawnPoint.position}");
+            Debug.Log($"Level2Manager: Spawning enemy at position {spawnPoint.position}");
             GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
             EnemyMovement enemyMovement = enemy.GetComponent<EnemyMovement>();
             if (enemyMovement != null)
             {
                 enemyMovement.path = path;
-                Debug.Log($"Level2Manager: Enemy создан: {enemy.name}");
+                Debug.Log($"Level2Manager: Enemy created: {enemy.name}");
             }
             else
             {
-                Debug.LogError("Level2Manager: EnemyMovement компонент отсутствует на префабе!");
+                Debug.LogError("Level2Manager: EnemyMovement component missing on prefab!");
             }
         }
     }
@@ -183,20 +185,20 @@ public class Level2Manager : MonoBehaviour
     {
         if (villageHealth != null)
         {
-            if (currentWave == 1) // Первая волна — никакого урона
+            if (currentWave == 1)
             {
-                Debug.Log("Level2Manager: Первая волна прошла, урон Village не нанесён.");
+                Debug.Log("Level2Manager: First wave passed, no damage to Village.");
             }
-            else if (currentWave == 2) // Вторая волна — здоровье до половины
+            else if (currentWave == 2)
             {
                 int halfHealth = villageHealth.GetCurrentHealth() / 2;
                 villageHealth.TakeDamage(halfHealth);
-                Debug.Log("Level2Manager: Вторая волна прошла, здоровье Village уменьшено до половины.");
+                Debug.Log("Level2Manager: Second wave passed, Village health halved.");
             }
-            else if (currentWave == 3) // Третья волна — полное разрушение
+            else if (currentWave == 3)
             {
                 villageHealth.TakeDamage(villageHealth.GetCurrentHealth());
-                Debug.Log("Level2Manager: Третья волна прошла, Village разрушен.");
+                Debug.Log("Level2Manager: Third wave passed, Village destroyed.");
             }
         }
     }

@@ -34,10 +34,10 @@ public class Health : MonoBehaviour
         if (isDying) return; // Избегаем повторного вызова
 
         isDying = true;
-        GameManager gameManager = GameManager.Instance;
-        if (gameManager != null)
+        GameState gameState = GameState.Instance;
+        if (gameState != null)
         {
-            gameManager.AddGold(goldReward);
+            gameState.AddGold(goldReward);
         }
         Debug.Log($"{gameObject.name} уничтожен, награда: {goldReward} золота");
 

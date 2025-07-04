@@ -131,50 +131,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 178818286}
-  - component: {fileID: 178818285}
+  - component: {fileID: 178818287}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: GameState
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &178818285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178818284}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a86201993e53654d9632c792c54b2ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainMenuPanel: {fileID: 0}
-  gameplayUI: {fileID: 0}
-  gameplayObjects: []
-  playButton: {fileID: 0}
-  pauseButton: {fileID: 0}
-  speedButton: {fileID: 0}
-  speedText: {fileID: 0}
-  backToMenuButton: {fileID: 0}
-  mainMenuButton: {fileID: 1313974408}
-  level2Button: {fileID: 0}
-  initialGold: 75
-  shopPanel: {fileID: 1246574314}
-  shopButton: {fileID: 737579632}
-  placeForUnit1Button: {fileID: 945828106}
-  placeForUnit2Button: {fileID: 2132331555}
-  placeForUnit3Button: {fileID: 1751145729}
-  lockSprite: {fileID: 21300000, guid: 8fbb76b341a292e48b0845c536104811, type: 3}
-  sceneObjectsToHide:
-  - {fileID: 1298677701}
-  - {fileID: 475426503}
-  - {fileID: 211894752}
-  - {fileID: 1696511622}
-  - {fileID: 665268963}
-  - {fileID: 398890206}
 --- !u!4 &178818286
 Transform:
   m_ObjectHideFlags: 0
@@ -190,6 +154,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &178818287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178818284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f9b8e50ac3aec04fbafcb9f98ae5df4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialGold: 75
 --- !u!1 &211894752
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,7 +523,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 297171145}
-  - component: {fileID: 297171144}
+  - component: {fileID: 297171146}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -554,21 +531,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &297171144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 297171143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30cffbd12f1866d4b8e4a89f1e7d9351, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  level1Button: {fileID: 1298677703}
-  level2Button: {fileID: 475426505}
-  shopButton: {fileID: 737579632}
 --- !u!4 &297171145
 Transform:
   m_ObjectHideFlags: 0
@@ -584,6 +546,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &297171146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297171143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30cffbd12f1866d4b8e4a89f1e7d9351, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  level1Button: {fileID: 1298677703}
+  level2Button: {fileID: 475426505}
+  shopButton: {fileID: 737579632}
+  mainMenuButton: {fileID: 1313974408}
+  placeForUnit1Button: {fileID: 945828106}
+  placeForUnit2Button: {fileID: 2132331555}
+  placeForUnit3Button: {fileID: 1751145729}
+  shopPanel: {fileID: 1246574314}
+  lockSprite: {fileID: 21300000, guid: 8fbb76b341a292e48b0845c536104811, type: 3}
+  sceneObjectsToHide:
+  - {fileID: 1298677701}
+  - {fileID: 475426503}
+  - {fileID: 211894752}
+  - {fileID: 1696511622}
+  - {fileID: 665268963}
+  - {fileID: 398890206}
+  gameplayUI: {fileID: 0}
+  gameplayObjects: []
 --- !u!1 &311384440
 GameObject:
   m_ObjectHideFlags: 0
@@ -876,7 +868,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 178818285}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: StartLevelGameplay
         m_Mode: 1
@@ -1217,8 +1209,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 890, y: 468}
-  m_SizeDelta: {x: 115.1367, y: 127.82}
+  m_AnchoredPosition: {x: 890, y: 477}
+  m_SizeDelta: {x: 93.6031, y: 91.3985}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &737579632
 MonoBehaviour:
@@ -1264,7 +1256,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 178818285}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: OpenShop
         m_Mode: 1
@@ -1296,7 +1288,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fe44470d058a2f244b77fa9ca7f29e29, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 294809d57675d2144b8e82d9158d765c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1974,7 +1966,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 297171144}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MapManager, Assembly-CSharp
         m_MethodName: LoadLevel1
         m_Mode: 1
@@ -2060,7 +2052,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -910, y: 490}
+  m_AnchoredPosition: {x: -891, y: 477}
   m_SizeDelta: {x: 93.6031, y: 91.3985}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1313974408
@@ -2107,7 +2099,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 178818285}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: ShowMainMenu
         m_Mode: 1
@@ -2139,7 +2131,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9636baa81476a6141b0193b08a929445, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 66a74fc8528acb24fb3921ecad63a2cb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
