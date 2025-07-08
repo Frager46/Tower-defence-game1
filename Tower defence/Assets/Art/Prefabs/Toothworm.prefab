@@ -211,5 +211,5 @@ MonoBehaviour:
   rb: {fileID: 2849245825232084396}
   path: []
   animator: {fileID: 0}
-  moveSpeed: 0.8
+  moveSpeed: 2
   isFlying: 0

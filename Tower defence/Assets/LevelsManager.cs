@@ -125,9 +125,9 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: LoadSceneMode: " + mode);
         Debug.Log("LevelsManager: Canvas count: " + FindObjectsOfType<Canvas>().Length);
         Debug.Log("LevelsManager: Instance: " + (Instance != null));
-        if (scene.name == "Level1Scene" || scene.name == "Level2Scene")
+        if (scene.name == "Level1Scene" || scene.name == "Level2Scene" || scene.name == "Level4Scene") // Добавлен Level4Scene
         {
-            Debug.Log("LevelsManager: Scene is Level1Scene or Level2Scene");
+            Debug.Log("LevelsManager: Scene is Level1Scene or Level2Scene or Level4Scene");
             Debug.Log("LevelsManager: Starting DelayedStartLevelGameplay");
             StartCoroutine(DelayedStartLevelGameplay());
         }
@@ -384,6 +384,22 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: Calling StartGame");
             level2Manager.StartGame();
         }
+        else if (SceneManager.GetActiveScene().name == "Level4Scene") // Исправлено на Level4Manager
+        {
+            Debug.Log("LevelsManager: Scene is Level4Scene");
+            Level4Manager level4Manager = FindObjectOfType<Level4Manager>();
+            Debug.Log("LevelsManager: level4Manager assigned");
+            if (level4Manager == null)
+            {
+                Debug.Log("LevelsManager: level4Manager is null");
+                Debug.Log("LevelsManager: Level4Manager not found in Level4Scene!");
+                yield break;
+            }
+            Level4Manager.main = level4Manager;
+            Debug.Log("LevelsManager: Level4Manager.main set");
+            Debug.Log("LevelsManager: Calling StartGame");
+            level4Manager.StartGame();
+        }
         isPaused = false;
         Debug.Log("LevelsManager: isPaused set to " + isPaused);
         Time.timeScale = 1;
@@ -482,6 +498,14 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: Level2Manager.main.StopGame called");
             Level2Manager.main = null;
             Debug.Log("LevelsManager: Level2Manager.main reset");
+        }
+        else if (SceneManager.GetActiveScene().name == "Level4Scene" && Level4Manager.main != null) // Исправлено на Level4Manager
+        {
+            Debug.Log("LevelsManager: Scene is Level4Scene and Level4Manager.main not null");
+            Level4Manager.main.StopGame();
+            Debug.Log("LevelsManager: Level4Manager.main.StopGame called");
+            Level4Manager.main = null;
+            Debug.Log("LevelsManager: Level4Manager.main reset");
         }
         Debug.Log("LevelsManager: Loading MapScene");
         SceneManager.LoadScene("MapScene");

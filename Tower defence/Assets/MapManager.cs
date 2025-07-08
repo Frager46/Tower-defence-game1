@@ -12,6 +12,7 @@ public class MapManager : MonoBehaviour
     [Header("UI Buttons")]
     public Button level1Button;
     public Button level2Button;
+    public Button level4Button; // Добавлена кнопка для 4-го уровня
     public Button shopButton;
     public Button mainMenuButton; // Can be manually assigned in Inspector as fallback
     public Button placeForUnit1Button;
@@ -28,7 +29,7 @@ public class MapManager : MonoBehaviour
     private void Awake()
     {
         Debug.Log("MapManager: Awake called, Instance: " + (Instance != null));
-        Debug.Log($"MapManager: Initial references - level1Button: {level1Button != null}, level2Button: {level2Button != null}, shopButton: {shopButton != null}, mainMenuButton: {mainMenuButton != null}, placeForUnit1Button: {placeForUnit1Button != null}, placeForUnit2Button: {placeForUnit2Button != null}, placeForUnit3Button: {placeForUnit3Button != null}, shopPanel: {shopPanel != null}, sceneObjectsToHide: {sceneObjectsToHide != null && sceneObjectsToHide.Length > 0}, gameplayUI: {gameplayUI != null}, gameplayObjects: {gameplayObjects != null && gameplayObjects.Length > 0}");
+        Debug.Log($"MapManager: Initial references - level1Button: {level1Button != null}, level2Button: {level2Button != null}, level4Button: {level4Button != null}, shopButton: {shopButton != null}, mainMenuButton: {mainMenuButton != null}, placeForUnit1Button: {placeForUnit1Button != null}, placeForUnit2Button: {placeForUnit2Button != null}, placeForUnit3Button: {placeForUnit3Button != null}, shopPanel: {shopPanel != null}, sceneObjectsToHide: {sceneObjectsToHide != null && sceneObjectsToHide.Length > 0}, gameplayUI: {gameplayUI != null}, gameplayObjects: {gameplayObjects != null && gameplayObjects.Length > 0}");
         if (Instance == null)
         {
             Instance = this;
@@ -134,6 +135,7 @@ public class MapManager : MonoBehaviour
         // Reset all UI references
         level1Button = null;
         level2Button = null;
+        level4Button = null; // Сброс для новой кнопки
         shopButton = null;
         mainMenuButton = null;
         placeForUnit1Button = null;
@@ -201,6 +203,11 @@ public class MapManager : MonoBehaviour
                 {
                     level1Button = btn;
                     Debug.Log($"MapManager: level1Button assigned to '{btn.name}'");
+                }
+                if (btn.name.Contains("Level4") && level4Button == null) // Добавлено для 4-го уровня
+                {
+                    level4Button = btn;
+                    Debug.Log($"MapManager: level4Button assigned to '{btn.name}'");
                 }
             }
 
@@ -320,20 +327,30 @@ public class MapManager : MonoBehaviour
         {
             level2Button.gameObject.SetActive(true);
             Debug.Log($"MapManager: level2Button '{level2Button.name}' set active: {level2Button.gameObject.activeSelf}");
-            level2Button.interactable = GameState.Instance != null && GameState.Instance.IsLevel1Completed();
+            level2Button.interactable = true; // Убрано условие блокировки
             Debug.Log($"MapManager: level2Button '{level2Button.name}' set interactable: {level2Button.interactable}");
-            if (!GameState.Instance.IsLevel1Completed() && lockSprite != null)
-            {
-                level2Button.GetComponent<Image>().sprite = lockSprite;
-                Debug.Log($"MapManager: level2Button '{level2Button.name}' set to lockSprite");
-            }
             level2Button.onClick.RemoveAllListeners();
-            level2Button.onClick.AddListener(LoadLevel2);
+            level2Button.onClick.AddListener(LoadLevel2); // Предполагаем, что level2Button для 2-го уровня
             Debug.Log($"MapManager: level2Button '{level2Button.name}' listener set");
         }
         else
         {
             Debug.LogError("MapManager: level2Button not found after dynamic search!");
+        }
+
+        if (level4Button != null) // Настройка для 4-го уровня без блокировки
+        {
+            level4Button.gameObject.SetActive(true);
+            Debug.Log($"MapManager: level4Button '{level4Button.name}' set active: {level4Button.gameObject.activeSelf}");
+            level4Button.interactable = true; // Убрано условие IsLevel3Completed()
+            Debug.Log($"MapManager: level4Button '{level4Button.name}' set interactable: {level4Button.interactable}");
+            level4Button.onClick.RemoveAllListeners();
+            level4Button.onClick.AddListener(LoadLevel4);
+            Debug.Log($"MapManager: level4Button '{level4Button.name}' listener set");
+        }
+        else
+        {
+            Debug.LogError("MapManager: level4Button not found after dynamic search!");
         }
 
         if (placeForUnit1Button != null)
@@ -355,13 +372,8 @@ public class MapManager : MonoBehaviour
         {
             placeForUnit2Button.gameObject.SetActive(true);
             Debug.Log($"MapManager: placeForUnit2Button '{placeForUnit2Button.name}' set active: {placeForUnit2Button.gameObject.activeSelf}");
-            placeForUnit2Button.interactable = GameState.Instance != null && GameState.Instance.IsLevel1Completed();
+            placeForUnit2Button.interactable = true; // Убрано условие IsLevel1Completed()
             Debug.Log($"MapManager: placeForUnit2Button '{placeForUnit2Button.name}' set interactable: {placeForUnit2Button.interactable}");
-            if (!GameState.Instance.IsLevel1Completed() && lockSprite != null)
-            {
-                placeForUnit2Button.GetComponent<Image>().sprite = lockSprite;
-                Debug.Log($"MapManager: placeForUnit2Button '{placeForUnit2Button.name}' set to lockSprite");
-            }
             placeForUnit2Button.onClick.RemoveAllListeners();
             placeForUnit2Button.onClick.AddListener(() => BuyPlaceForUnit(2));
             Debug.Log($"MapManager: placeForUnit2Button '{placeForUnit2Button.name}' listener set");
@@ -375,13 +387,8 @@ public class MapManager : MonoBehaviour
         {
             placeForUnit3Button.gameObject.SetActive(true);
             Debug.Log($"MapManager: placeForUnit3Button '{placeForUnit3Button.name}' set active: {placeForUnit3Button.gameObject.activeSelf}");
-            placeForUnit3Button.interactable = GameState.Instance != null && GameState.Instance.IsLevel2Completed();
+            placeForUnit3Button.interactable = true; // Убрано условие IsLevel2Completed()
             Debug.Log($"MapManager: placeForUnit3Button '{placeForUnit3Button.name}' set interactable: {placeForUnit3Button.interactable}");
-            if (!GameState.Instance.IsLevel2Completed() && lockSprite != null)
-            {
-                placeForUnit3Button.GetComponent<Image>().sprite = lockSprite;
-                Debug.Log($"MapManager: placeForUnit3Button '{placeForUnit3Button.name}' set to lockSprite");
-            }
             placeForUnit3Button.onClick.RemoveAllListeners();
             placeForUnit3Button.onClick.AddListener(() => BuyPlaceForUnit(3));
             Debug.Log($"MapManager: placeForUnit3Button '{placeForUnit3Button.name}' listener set");
@@ -443,11 +450,18 @@ public class MapManager : MonoBehaviour
         SceneManager.LoadScene("Level1Scene");
     }
 
-    public void LoadLevel2()
+    public void LoadLevel2() // Оставим для 2-го уровня, если он есть
     {
         Debug.Log("MapManager: LoadLevel2 called");
         Debug.Log("MapManager: Loading Level2Scene");
         SceneManager.LoadScene("Level2Scene");
+    }
+
+    public void LoadLevel4()
+    {
+        Debug.Log("MapManager: LoadLevel4 called");
+        Debug.Log("MapManager: Loading Level4Scene");
+        SceneManager.LoadScene("Level4Scene");
     }
 
     public void ShowMainMenu()
