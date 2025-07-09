@@ -478,7 +478,7 @@ public class MapManager : MonoBehaviour
 
     public void OpenShop()
     {
-        Debug.Log($"MapManager: OpenShop called, isShopOpen: {isShopOpen}, shopPanel: {(shopPanel != null)}");
+        Debug.Log($"MapManager: OpenShop called, isShopOpen: {isShopOpen}, shopPanel: {(shopPanel != null)}, sceneObjectsToHide array length: {(sceneObjectsToHide != null ? sceneObjectsToHide.Length : 0)}");
         if (shopPanel != null)
         {
             if (isShopOpen)
@@ -487,6 +487,20 @@ public class MapManager : MonoBehaviour
             }
             else
             {
+                // Проверка и динамическое заполнение sceneObjectsToHide, если оно пустое или содержит null
+                if (sceneObjectsToHide == null || sceneObjectsToHide.Length == 0 || sceneObjectsToHide.Any(obj => obj == null))
+                {
+                    Debug.Log("MapManager: sceneObjectsToHide is null, empty, or contains null, searching dynamically");
+                    sceneObjectsToHide = GameObject.FindGameObjectsWithTag("HideOnShop")
+                        .Where(obj => obj != null && obj != shopPanel)
+                        .ToArray();
+                    Debug.Log($"MapManager: Dynamically found {(sceneObjectsToHide != null ? sceneObjectsToHide.Length : 0)} objects with tag 'HideOnShop'");
+                }
+                else
+                {
+                    Debug.Log($"MapManager: sceneObjectsToHide array valid, length: {sceneObjectsToHide.Length}");
+                }
+
                 foreach (GameObject obj in sceneObjectsToHide ?? new GameObject[0])
                 {
                     if (obj != null)
