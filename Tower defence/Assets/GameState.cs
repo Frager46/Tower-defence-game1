@@ -15,7 +15,9 @@ public class GameState : MonoBehaviour
 
     private bool level1Completed = false;
     private bool level2Completed = false;
+    private bool level3Completed = false; // Добавлено для Level3
     private bool level4Completed = false; // Добавлено для Level4
+    private bool level5Completed = false; // Добавлено для Level5
 
     private void Awake()
     {
@@ -92,7 +94,9 @@ public class GameState : MonoBehaviour
     {
         if (level == 1) level1Completed = true;
         if (level == 2) level2Completed = true;
+        if (level == 3) level3Completed = true; // Добавлено для Level3
         if (level == 4) level4Completed = true; // Добавлено для Level4
+        if (level == 5) level5Completed = true; // Добавлено для Level5
         Debug.Log($"GameState: Level {level} completed");
     }
 
@@ -106,9 +110,19 @@ public class GameState : MonoBehaviour
         return level2Completed;
     }
 
+    public bool IsLevel3Completed() // Добавлено для Level3
+    {
+        return level3Completed;
+    }
+
     public bool IsLevel4Completed() // Добавлено для Level4
     {
         return level4Completed;
+    }
+
+    public bool IsLevel5Completed() // Добавлено для Level5
+    {
+        return level5Completed;
     }
 
     public void ResetGold()

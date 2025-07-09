@@ -12,7 +12,9 @@ public class MapManager : MonoBehaviour
     [Header("UI Buttons")]
     public Button level1Button;
     public Button level2Button;
+    public Button level3Button; // Добавлена кнопка для 3-го уровня
     public Button level4Button; // Добавлена кнопка для 4-го уровня
+    public Button level5Button; // Добавлена кнопка для 5-го уровня
     public Button shopButton;
     public Button mainMenuButton; // Can be manually assigned in Inspector as fallback
     public Button placeForUnit1Button;
@@ -29,7 +31,7 @@ public class MapManager : MonoBehaviour
     private void Awake()
     {
         Debug.Log("MapManager: Awake called, Instance: " + (Instance != null));
-        Debug.Log($"MapManager: Initial references - level1Button: {level1Button != null}, level2Button: {level2Button != null}, level4Button: {level4Button != null}, shopButton: {shopButton != null}, mainMenuButton: {mainMenuButton != null}, placeForUnit1Button: {placeForUnit1Button != null}, placeForUnit2Button: {placeForUnit2Button != null}, placeForUnit3Button: {placeForUnit3Button != null}, shopPanel: {shopPanel != null}, sceneObjectsToHide: {sceneObjectsToHide != null && sceneObjectsToHide.Length > 0}, gameplayUI: {gameplayUI != null}, gameplayObjects: {gameplayObjects != null && gameplayObjects.Length > 0}");
+        Debug.Log($"MapManager: Initial references - level1Button: {level1Button != null}, level2Button: {level2Button != null}, level3Button: {level3Button != null}, level4Button: {level4Button != null}, level5Button: {level5Button != null}, shopButton: {shopButton != null}, mainMenuButton: {mainMenuButton != null}, placeForUnit1Button: {placeForUnit1Button != null}, placeForUnit2Button: {placeForUnit2Button != null}, placeForUnit3Button: {placeForUnit3Button != null}, shopPanel: {shopPanel != null}, sceneObjectsToHide: {sceneObjectsToHide != null && sceneObjectsToHide.Length > 0}, gameplayUI: {gameplayUI != null}, gameplayObjects: {gameplayObjects != null && gameplayObjects.Length > 0}");
         if (Instance == null)
         {
             Instance = this;
@@ -135,7 +137,9 @@ public class MapManager : MonoBehaviour
         // Reset all UI references
         level1Button = null;
         level2Button = null;
+        level3Button = null; // Сброс для новой кнопки
         level4Button = null; // Сброс для новой кнопки
+        level5Button = null; // Сброс для новой кнопки
         shopButton = null;
         mainMenuButton = null;
         placeForUnit1Button = null;
@@ -204,10 +208,20 @@ public class MapManager : MonoBehaviour
                     level1Button = btn;
                     Debug.Log($"MapManager: level1Button assigned to '{btn.name}'");
                 }
-                if (btn.name.Contains("Level4") && level4Button == null) // Добавлено для 4-го уровня
+                if (btn.name.Contains("Level4") && level4Button == null)
                 {
                     level4Button = btn;
                     Debug.Log($"MapManager: level4Button assigned to '{btn.name}'");
+                }
+                if (btn.name.Contains("Level3") && level3Button == null)
+                {
+                    level3Button = btn;
+                    Debug.Log($"MapManager: level3Button assigned to '{btn.name}'");
+                }
+                if (btn.name.Contains("Level5") && level5Button == null)
+                {
+                    level5Button = btn;
+                    Debug.Log($"MapManager: level5Button assigned to '{btn.name}'");
                 }
             }
 
@@ -338,7 +352,7 @@ public class MapManager : MonoBehaviour
             Debug.LogError("MapManager: level2Button not found after dynamic search!");
         }
 
-        if (level4Button != null) // Настройка для 4-го уровня без блокировки
+        if (level4Button != null)
         {
             level4Button.gameObject.SetActive(true);
             Debug.Log($"MapManager: level4Button '{level4Button.name}' set active: {level4Button.gameObject.activeSelf}");
@@ -351,6 +365,36 @@ public class MapManager : MonoBehaviour
         else
         {
             Debug.LogError("MapManager: level4Button not found after dynamic search!");
+        }
+
+        if (level3Button != null)
+        {
+            level3Button.gameObject.SetActive(true);
+            Debug.Log($"MapManager: level3Button '{level3Button.name}' set active: {level3Button.gameObject.activeSelf}");
+            level3Button.interactable = true; // Убрано условие блокировки
+            Debug.Log($"MapManager: level3Button '{level3Button.name}' set interactable: {level3Button.interactable}");
+            level3Button.onClick.RemoveAllListeners();
+            level3Button.onClick.AddListener(LoadLevel3);
+            Debug.Log($"MapManager: level3Button '{level3Button.name}' listener set");
+        }
+        else
+        {
+            Debug.LogError("MapManager: level3Button not found after dynamic search!");
+        }
+
+        if (level5Button != null)
+        {
+            level5Button.gameObject.SetActive(true);
+            Debug.Log($"MapManager: level5Button '{level5Button.name}' set active: {level5Button.gameObject.activeSelf}");
+            level5Button.interactable = true; // Убрано условие блокировки
+            Debug.Log($"MapManager: level5Button '{level5Button.name}' set interactable: {level5Button.interactable}");
+            level5Button.onClick.RemoveAllListeners();
+            level5Button.onClick.AddListener(LoadLevel5);
+            Debug.Log($"MapManager: level5Button '{level5Button.name}' listener set");
+        }
+        else
+        {
+            Debug.LogError("MapManager: level5Button not found after dynamic search!");
         }
 
         if (placeForUnit1Button != null)
@@ -450,7 +494,7 @@ public class MapManager : MonoBehaviour
         SceneManager.LoadScene("Level1Scene");
     }
 
-    public void LoadLevel2() // Оставим для 2-го уровня, если он есть
+    public void LoadLevel2()
     {
         Debug.Log("MapManager: LoadLevel2 called");
         Debug.Log("MapManager: Loading Level2Scene");
@@ -462,6 +506,20 @@ public class MapManager : MonoBehaviour
         Debug.Log("MapManager: LoadLevel4 called");
         Debug.Log("MapManager: Loading Level4Scene");
         SceneManager.LoadScene("Level4Scene");
+    }
+
+    public void LoadLevel3()
+    {
+        Debug.Log("MapManager: LoadLevel3 called");
+        Debug.Log("MapManager: Loading Level3Scene");
+        SceneManager.LoadScene("Level3Scene");
+    }
+
+    public void LoadLevel5()
+    {
+        Debug.Log("MapManager: LoadLevel5 called");
+        Debug.Log("MapManager: Loading Level5Scene");
+        SceneManager.LoadScene("Level5Scene");
     }
 
     public void ShowMainMenu()

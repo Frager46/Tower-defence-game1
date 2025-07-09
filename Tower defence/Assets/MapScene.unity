@@ -249,7 +249,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 211894755}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 297171146}
+        m_TargetAssemblyTypeName: MapManager, Assembly-CSharp
+        m_MethodName: LoadLevel3
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &211894755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -560,7 +572,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   level1Button: {fileID: 1298677703}
   level2Button: {fileID: 475426505}
+  level3Button: {fileID: 211894754}
   level4Button: {fileID: 1696511624}
+  level5Button: {fileID: 665268965}
   shopButton: {fileID: 737579632}
   mainMenuButton: {fileID: 1313974408}
   placeForUnit1Button: {fileID: 945828106}
@@ -869,9 +883,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: StartLevelGameplay
+      - m_Target: {fileID: 297171146}
+        m_TargetAssemblyTypeName: MapManager, Assembly-CSharp
+        m_MethodName: LoadLevel2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1135,7 +1149,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 665268966}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 297171146}
+        m_TargetAssemblyTypeName: MapManager, Assembly-CSharp
+        m_MethodName: LoadLevel5
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &665268966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1967,7 +1993,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 297171146}
         m_TargetAssemblyTypeName: MapManager, Assembly-CSharp
         m_MethodName: LoadLevel1
         m_Mode: 1
