@@ -75,14 +75,14 @@ public class Level3Manager : MonoBehaviour
             }
         }
     }
-
     public void StartGame()
     {
         Debug.Log("Level3Manager: StartGame called, gameStarted set to true, currentWave: " + currentWave);
+        if (villageHealth != null) villageHealth.SetLevelIndex(2); // Устанавливаем индекс для Level3
         gameStarted = true;
         StartCoroutine(StartWaves());
     }
-
+  
     public void StopGame()
     {
         Debug.Log("Level3Manager: StopGame called, currentWave: " + currentWave + ", waveInProgress: " + waveInProgress);

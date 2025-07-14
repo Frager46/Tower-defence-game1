@@ -74,7 +74,8 @@ public class LevelManager : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("LevelManager: StartGame called");
+        Debug.Log("Level3Manager: StartGame called, gameStarted set to true, currentWave: " + currentWave);
+        if (villageHealth != null) villageHealth.SetLevelIndex(0); // Устанавливаем индекс для Level1
         gameStarted = true;
         StartCoroutine(StartWaves());
     }

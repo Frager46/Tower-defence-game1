@@ -1628,7 +1628,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 0
+      m_TileSpriteIndex: 2
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -3793,12 +3793,12 @@ Tilemap:
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: eb270822ebf6be049989cd1b3f508132, type: 2}
   m_TileSpriteArray:
-  - m_RefCount: 1
-    m_Data: {fileID: 1030556881, guid: 7257ea77fba9c6a47a33ce3d4fcaa983, type: 3}
-  - m_RefCount: 2
-    m_Data: {fileID: -1106244783, guid: 7257ea77fba9c6a47a33ce3d4fcaa983, type: 3}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 2
+    m_Data: {fileID: -1106244783, guid: 7257ea77fba9c6a47a33ce3d4fcaa983, type: 3}
+  - m_RefCount: 1
+    m_Data: {fileID: 1030556881, guid: 7257ea77fba9c6a47a33ce3d4fcaa983, type: 3}
   - m_RefCount: 2
     m_Data: {fileID: 1798765675, guid: 29d1688da8d75cc45be46b9c6c7b8f4d, type: 3}
   - m_RefCount: 2
@@ -11206,12 +11206,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  fullHPSprite: {fileID: 21300000, guid: 131632c6ab816da45a93ea9af202e257, type: 3}
-  halfHPSprite: {fileID: 21300000, guid: d542cb0a6b184d7409da05ce28662729, type: 3}
-  zeroHPSprite: {fileID: 21300000, guid: 65eac69b3c836094d9f3b592e355576f, type: 3}
-  healthBarFullHP: {fileID: 21300000, guid: 041b990157b04904bb6a82c03c4b06fc, type: 3}
-  healthBarHalfHP: {fileID: 21300000, guid: 52826de0fdfb94f4dbe66d287fb7d57e, type: 3}
-  healthBarZeroHP: {fileID: 21300000, guid: bddc4c92c57917e4fa25db84151ae478, type: 3}
+  fullHPSprites:
+  - {fileID: 21300000, guid: 131632c6ab816da45a93ea9af202e257, type: 3}
+  halfHPSprites:
+  - {fileID: 21300000, guid: d542cb0a6b184d7409da05ce28662729, type: 3}
+  zeroHPSprites:
+  - {fileID: 21300000, guid: 65eac69b3c836094d9f3b592e355576f, type: 3}
+  healthBarFullHP:
+  - {fileID: 21300000, guid: 041b990157b04904bb6a82c03c4b06fc, type: 3}
+  healthBarHalfHP:
+  - {fileID: 21300000, guid: 52826de0fdfb94f4dbe66d287fb7d57e, type: 3}
+  healthBarZeroHP:
+  - {fileID: 21300000, guid: bddc4c92c57917e4fa25db84151ae478, type: 3}
   healthBarImage: {fileID: 148080462}
 --- !u!1 &686726556
 GameObject:

@@ -14967,12 +14967,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  fullHPSprite: {fileID: 21300000, guid: 131632c6ab816da45a93ea9af202e257, type: 3}
-  halfHPSprite: {fileID: 21300000, guid: d542cb0a6b184d7409da05ce28662729, type: 3}
-  zeroHPSprite: {fileID: 21300000, guid: 65eac69b3c836094d9f3b592e355576f, type: 3}
-  healthBarFullHP: {fileID: 21300000, guid: 041b990157b04904bb6a82c03c4b06fc, type: 3}
-  healthBarHalfHP: {fileID: 21300000, guid: 52826de0fdfb94f4dbe66d287fb7d57e, type: 3}
-  healthBarZeroHP: {fileID: 21300000, guid: bddc4c92c57917e4fa25db84151ae478, type: 3}
+  fullHPSprites:
+  - {fileID: 21300000, guid: a22f1f7ea94215c4b90b05a998e4f6c5, type: 3}
+  halfHPSprites:
+  - {fileID: 21300000, guid: a22f1f7ea94215c4b90b05a998e4f6c5, type: 3}
+  zeroHPSprites:
+  - {fileID: 21300000, guid: a22f1f7ea94215c4b90b05a998e4f6c5, type: 3}
+  healthBarFullHP:
+  - {fileID: 21300000, guid: 041b990157b04904bb6a82c03c4b06fc, type: 3}
+  healthBarHalfHP:
+  - {fileID: 21300000, guid: 52826de0fdfb94f4dbe66d287fb7d57e, type: 3}
+  healthBarZeroHP:
+  - {fileID: 21300000, guid: bddc4c92c57917e4fa25db84151ae478, type: 3}
   healthBarImage: {fileID: 148080462}
 --- !u!1 &686726556
 GameObject:

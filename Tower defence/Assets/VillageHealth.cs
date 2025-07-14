@@ -8,19 +8,20 @@ public class VillageHealth : MonoBehaviour
     private int currentHealth;
 
     [Header("Village Sprite Settings")]
-    public Sprite fullHPSprite; // Спрайт для Village (FullHP)
-    public Sprite halfHPSprite; // Спрайт для Village (HalfHP)
-    public Sprite zeroHPSprite; // Спрайт для Village (0HP)
+    public Sprite[] fullHPSprites; // Массив спрайтов для Village (FullHP) для разных уровней
+    public Sprite[] halfHPSprites; // Массив спрайтов для Village (HalfHP) для разных уровней
+    public Sprite[] zeroHPSprites; // Массив спрайтов для Village (0HP) для разных уровней
 
     [Header("Healthbar Sprite Settings")]
-    public Sprite healthBarFullHP; // Спрайт healthbar для FullHP
-    public Sprite healthBarHalfHP; // Спрайт healthbar для HalfHP
-    public Sprite healthBarZeroHP; // Спрайт healthbar для 0HP
+    public Sprite[] healthBarFullHP; // Массив спрайтов healthbar для FullHP
+    public Sprite[] healthBarHalfHP; // Массив спрайтов healthbar для HalfHP
+    public Sprite[] healthBarZeroHP; // Массив спрайтов healthbar для 0HP
 
     [Header("UI References")]
     public Image healthBarImage; // Ссылка на Image для healthbar
 
     private SpriteRenderer spriteRenderer;
+    private int levelIndex = 0; // Индекс уровня (0 для Level1, 1 для Level2 и т.д.)
 
     void Start()
     {
@@ -30,6 +31,16 @@ public class VillageHealth : MonoBehaviour
         if (healthBarImage == null) Debug.LogError("HealthBarImage не найден!");
         UpdateHealthBar();
         UpdateSprite();
+    }
+
+    // Установка индекса уровня для выбора правильного спрайта
+    public void SetLevelIndex(int index)
+    {
+        levelIndex = Mathf.Clamp(index, 0, Mathf.Max(fullHPSprites.Length - 1, halfHPSprites.Length - 1, zeroHPSprites.Length - 1, 
+                                                    healthBarFullHP.Length - 1, healthBarHalfHP.Length - 1, healthBarZeroHP.Length - 1));
+        Debug.Log($"VillageHealth: Set level index to {levelIndex}");
+        UpdateSprite();
+        UpdateHealthBar();
     }
 
     // Получение урона
@@ -54,17 +65,17 @@ public class VillageHealth : MonoBehaviour
         {
             if (currentHealth > maxHealth / 2)
             {
-                healthBarImage.sprite = healthBarFullHP;
+                healthBarImage.sprite = healthBarFullHP.Length > levelIndex ? healthBarFullHP[levelIndex] : healthBarFullHP[0];
                 Debug.Log("Healthbar обновлён на FullHP");
             }
             else if (currentHealth > 0)
             {
-                healthBarImage.sprite = healthBarHalfHP;
+                healthBarImage.sprite = healthBarHalfHP.Length > levelIndex ? healthBarHalfHP[levelIndex] : healthBarHalfHP[0];
                 Debug.Log("Healthbar обновлён на HalfHP");
             }
             else
             {
-                healthBarImage.sprite = healthBarZeroHP;
+                healthBarImage.sprite = healthBarZeroHP.Length > levelIndex ? healthBarZeroHP[levelIndex] : healthBarZeroHP[0];
                 Debug.Log("Healthbar обновлён на ZeroHP");
             }
         }
@@ -77,17 +88,17 @@ public class VillageHealth : MonoBehaviour
         {
             if (currentHealth > maxHealth / 2)
             {
-                spriteRenderer.sprite = fullHPSprite;
+                spriteRenderer.sprite = fullHPSprites.Length > levelIndex ? fullHPSprites[levelIndex] : fullHPSprites[0];
                 Debug.Log("Village спрайт обновлён на FullHP");
             }
             else if (currentHealth > 0)
             {
-                spriteRenderer.sprite = halfHPSprite;
+                spriteRenderer.sprite = halfHPSprites.Length > levelIndex ? halfHPSprites[levelIndex] : halfHPSprites[0];
                 Debug.Log("Village спрайт обновлён на HalfHP");
             }
             else
             {
-                spriteRenderer.sprite = zeroHPSprite;
+                spriteRenderer.sprite = zeroHPSprites.Length > levelIndex ? zeroHPSprites[levelIndex] : zeroHPSprites[0];
                 Debug.Log("Village спрайт обновлён на ZeroHP");
             }
         }
