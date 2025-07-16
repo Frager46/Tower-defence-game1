@@ -17,12 +17,27 @@ public class LevelsManager : MonoBehaviour
     public Button speedButton;
     public Text speedText;
 
+    public GameObject pausedPanel; // Панель паузы
+    public Button resumeButton; // Кнопка возобновления
+    public Button closePausedButton; // Кнопка закрытия паузы
+    public Button exitButton; // Кнопка выхода
+    public GameObject questionPanel; // Панель подтверждения выхода
+    public Button yesButton; // Кнопка "Да" для выхода
+    public Button noButton; // Кнопка "Нет" для возврата
+
     private bool isPaused = false;
     private int currentSpeed = 1;
     private bool isGameActive = false;
 
-    // Static backup to preserve button reference
+    // Static backups to preserve references across scenes
     private static Button _backupBackToMenuButton;
+    private static Button _backupPauseButton;
+    private static Button _backupSpeedButton;
+    private static Button _backupResumeButton;
+    private static Button _backupClosePausedButton;
+    private static Button _backupExitButton;
+    private static Button _backupYesButton;
+    private static Button _backupNoButton;
 
     private void Awake()
     {
@@ -34,24 +49,16 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: Instance set as new");
             DontDestroyOnLoad(gameObject);
             Debug.Log("LevelsManager: DontDestroyOnLoad applied");
-            // Restore backup if available
-            if (_backupBackToMenuButton != null)
-            {
-                backToMenuButton = _backupBackToMenuButton;
-                Debug.Log("LevelsManager: Restored backToMenuButton from backup: " + (backToMenuButton != null));
-            }
-            else if (backToMenuButton == null)
-            {
-                Debug.LogError("LevelsManager: backToMenuButton not assigned in Inspector! Please assign it before playing.");
-                enabled = false; // Disable the script to prevent further execution
-                return;
-            }
-            // Update backup with Inspector value
-            if (backToMenuButton != null)
-            {
-                _backupBackToMenuButton = backToMenuButton;
-                Debug.Log("LevelsManager: Updated backup with Inspector backToMenuButton: " + (_backupBackToMenuButton != null));
-            }
+            // Restore backups if available
+            backToMenuButton = _backupBackToMenuButton != null ? _backupBackToMenuButton : backToMenuButton;
+            pauseButton = _backupPauseButton != null ? _backupPauseButton : pauseButton;
+            speedButton = _backupSpeedButton != null ? _backupSpeedButton : speedButton;
+            resumeButton = _backupResumeButton != null ? _backupResumeButton : resumeButton;
+            closePausedButton = _backupClosePausedButton != null ? _backupClosePausedButton : closePausedButton;
+            exitButton = _backupExitButton != null ? _backupExitButton : exitButton;
+            yesButton = _backupYesButton != null ? _backupYesButton : yesButton;
+            noButton = _backupNoButton != null ? _backupNoButton : noButton;
+            Debug.Log("LevelsManager: Restored button references from backups: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
         }
         else if (Instance != this)
         {
@@ -59,11 +66,16 @@ public class LevelsManager : MonoBehaviour
             if (Instance.gameObject.scene != gameObject.scene && Instance.gameObject.activeInHierarchy)
             {
                 Debug.Log("LevelsManager: Destroying duplicate from different scene");
-                if (backToMenuButton != null)
-                {
-                    _backupBackToMenuButton = backToMenuButton;
-                    Debug.Log("LevelsManager: Backed up new instance's backToMenuButton: " + (_backupBackToMenuButton != null));
-                }
+                // Backup new instance's buttons
+                _backupBackToMenuButton = backToMenuButton != null ? backToMenuButton : _backupBackToMenuButton;
+                _backupPauseButton = pauseButton != null ? pauseButton : _backupPauseButton;
+                _backupSpeedButton = speedButton != null ? speedButton : _backupSpeedButton;
+                _backupResumeButton = resumeButton != null ? resumeButton : _backupResumeButton;
+                _backupClosePausedButton = closePausedButton != null ? closePausedButton : _backupClosePausedButton;
+                _backupExitButton = exitButton != null ? exitButton : _backupExitButton;
+                _backupYesButton = yesButton != null ? yesButton : _backupYesButton;
+                _backupNoButton = noButton != null ? noButton : _backupNoButton;
+                Debug.Log("LevelsManager: Backed up new instance's buttons: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
                 Destroy(gameObject);
                 Debug.Log("LevelsManager: Destroyed self");
             }
@@ -97,6 +109,24 @@ public class LevelsManager : MonoBehaviour
                 Debug.Log("LevelsManager: gameplayObject deactivated");
             }
         }
+        if (pausedPanel != null)
+        {
+            pausedPanel.SetActive(false); // Панель паузы не видна по умолчанию
+            Debug.Log("LevelsManager: pausedPanel deactivated by default, name: " + (pausedPanel != null ? pausedPanel.name : "null"));
+        }
+        else
+        {
+            Debug.Log("LevelsManager: pausedPanel is null at Start");
+        }
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false); // Панель вопроса не видна по умолчанию
+            Debug.Log("LevelsManager: questionPanel deactivated by default, name: " + (questionPanel != null ? questionPanel.name : "null"));
+        }
+        else
+        {
+            Debug.Log("LevelsManager: questionPanel is null at Start");
+        }
     }
 
     private void OnDestroy()
@@ -108,12 +138,16 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: SceneManager.sceneLoaded -= OnSceneLoaded");
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Debug.Log("LevelsManager: Unsubscribed from SceneManager.sceneLoaded");
-            // Backup the button reference before destruction
-            if (backToMenuButton != null)
-            {
-                _backupBackToMenuButton = backToMenuButton;
-                Debug.Log("LevelsManager: Backed up backToMenuButton: " + (_backupBackToMenuButton != null));
-            }
+            // Backup all button references before destruction
+            _backupBackToMenuButton = backToMenuButton;
+            _backupPauseButton = pauseButton;
+            _backupSpeedButton = speedButton;
+            _backupResumeButton = resumeButton;
+            _backupClosePausedButton = closePausedButton;
+            _backupExitButton = exitButton;
+            _backupYesButton = yesButton;
+            _backupNoButton = noButton;
+            Debug.Log("LevelsManager: Backed up all button references: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
             Instance = null;
             Debug.Log("LevelsManager: Instance reset to null");
         }
@@ -121,10 +155,10 @@ public class LevelsManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log("LevelsManager: OnSceneLoaded called, Scene: " + scene.name);
-        Debug.Log("LevelsManager: LoadSceneMode: " + mode);
+        Debug.Log("LevelsManager: OnSceneLoaded called, Scene: " + scene.name + ", Mode: " + mode);
         Debug.Log("LevelsManager: Canvas count: " + FindObjectsOfType<Canvas>().Length);
         Debug.Log("LevelsManager: Instance: " + (Instance != null));
+        Debug.Log("LevelsManager: Initial panel states - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
         if (scene.name == "Level1Scene" || scene.name == "Level2Scene" || scene.name == "Level4Scene" || scene.name == "Level3Scene" || scene.name == "Level5Scene")
         {
             Debug.Log("LevelsManager: Scene is a level scene");
@@ -149,6 +183,24 @@ public class LevelsManager : MonoBehaviour
                     obj.SetActive(false);
                     Debug.Log("LevelsManager: gameplayObject deactivated");
                 }
+            }
+            if (pausedPanel != null)
+            {
+                pausedPanel.SetActive(false);
+                Debug.Log("LevelsManager: pausedPanel deactivated, name: " + pausedPanel.name);
+            }
+            else
+            {
+                Debug.Log("LevelsManager: pausedPanel is null, cannot deactivate");
+            }
+            if (questionPanel != null)
+            {
+                questionPanel.SetActive(false);
+                Debug.Log("LevelsManager: questionPanel deactivated, name: " + questionPanel.name);
+            }
+            else
+            {
+                Debug.Log("LevelsManager: questionPanel is null, cannot deactivate");
             }
             Debug.Log("LevelsManager: Resetting state");
             isGameActive = false;
@@ -182,24 +234,29 @@ public class LevelsManager : MonoBehaviour
             speedButton = null;
             Debug.Log("LevelsManager: speedButton reset to null");
             // Start with backup or Inspector reference
-            backToMenuButton = _backupBackToMenuButton != null ? _backupBackToMenuButton : this.backToMenuButton;
-            Debug.Log("LevelsManager: backToMenuButton set to backup or Inspector: " + (backToMenuButton != null));
+            backToMenuButton = _backupBackToMenuButton != null ? _backupBackToMenuButton : backToMenuButton;
+            resumeButton = _backupResumeButton != null ? _backupResumeButton : resumeButton;
+            closePausedButton = _backupClosePausedButton != null ? _backupClosePausedButton : closePausedButton;
+            exitButton = _backupExitButton != null ? _backupExitButton : exitButton;
+            yesButton = _backupYesButton != null ? _backupYesButton : yesButton;
+            noButton = _backupNoButton != null ? _backupNoButton : noButton;
+            speedText = null;
+            Debug.Log("LevelsManager: UI references updated with backups: pausedPanel=" + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
             if (backToMenuButton == null)
             {
                 Debug.LogError("LevelsManager: backToMenuButton not assigned! Check Inspector or scene hierarchy.");
             }
-            speedText = null;
-            Debug.Log("LevelsManager: speedText reset to null");
             if (pauseButton == null)
             {
                 Debug.Log("LevelsManager: Searching for pauseButton");
                 foreach (Button btn in buttons)
                 {
-                    Debug.Log("LevelsManager: Checking button: " + btn.name);
+                    Debug.Log("LevelsManager: Checking button: " + btn.name + ", Active: " + btn.gameObject.activeInHierarchy);
                     if (btn.name.Contains("Pause"))
                     {
                         Debug.Log("LevelsManager: pauseButton name contains Pause");
                         pauseButton = btn;
+                        _backupPauseButton = pauseButton;
                         Debug.Log("LevelsManager: pauseButton assigned: " + (pauseButton != null));
                         break;
                     }
@@ -214,11 +271,12 @@ public class LevelsManager : MonoBehaviour
                 Debug.Log("LevelsManager: Searching for speedButton");
                 foreach (Button btn in buttons)
                 {
-                    Debug.Log("LevelsManager: Checking button: " + btn.name);
+                    Debug.Log("LevelsManager: Checking button: " + btn.name + ", Active: " + btn.gameObject.activeInHierarchy);
                     if (btn.name.Contains("Speed"))
                     {
                         Debug.Log("LevelsManager: speedButton name contains Speed");
                         speedButton = btn;
+                        _backupSpeedButton = speedButton;
                         Debug.Log("LevelsManager: speedButton assigned: " + (speedButton != null));
                         break;
                     }
@@ -238,9 +296,8 @@ public class LevelsManager : MonoBehaviour
                     {
                         Debug.Log("LevelsManager: backToMenuButton name matches: " + btn.name);
                         backToMenuButton = btn;
-                        Debug.Log("LevelsManager: backToMenuButton assigned: " + (backToMenuButton != null));
                         _backupBackToMenuButton = backToMenuButton;
-                        Debug.Log("LevelsManager: Updated backup with dynamically found backToMenuButton: " + (_backupBackToMenuButton != null));
+                        Debug.Log("LevelsManager: backToMenuButton assigned: " + (backToMenuButton != null));
                         break;
                     }
                 }
@@ -258,7 +315,7 @@ public class LevelsManager : MonoBehaviour
                 Debug.Log("LevelsManager: Searching for speedText");
                 foreach (Text txt in texts)
                 {
-                    Debug.Log("LevelsManager: Checking text: " + txt.name);
+                    Debug.Log("LevelsManager: Checking text: " + txt.name + ", Active: " + txt.gameObject.activeInHierarchy);
                     if (txt.name.Contains("Speed"))
                     {
                         Debug.Log("LevelsManager: speedText name contains Speed");
@@ -277,7 +334,7 @@ public class LevelsManager : MonoBehaviour
                 Debug.Log("LevelsManager: GameState.Instance not null");
                 foreach (TextMeshProUGUI tmpTxt in tmpTexts)
                 {
-                    Debug.Log("LevelsManager: Checking TMPText: " + tmpTxt.name);
+                    Debug.Log("LevelsManager: Checking TMPText: " + tmpTxt.name + ", Active: " + tmpTxt.gameObject.activeInHierarchy);
                     if (tmpTxt.name == "GoldText")
                     {
                         Debug.Log("LevelsManager: TMPText name is GoldText");
@@ -287,6 +344,60 @@ public class LevelsManager : MonoBehaviour
                     }
                 }
             }
+            // Enhanced panel restoration with named button assignment
+            Debug.Log("LevelsManager: Checking panel restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+            if (pausedPanel == null)
+            {
+                pausedPanel = GameObject.Find("/Canvas/PausedPanel") ?? GameObject.Find("PausedPanel");
+                if (pausedPanel == null)
+                {
+                    Debug.LogWarning("LevelsManager: pausedPanel not found with Find, searching all inactive objects");
+                    pausedPanel = FindInActiveObjectByName("PausedPanel");
+                }
+                if (pausedPanel != null)
+                {
+                    pausedPanel.SetActive(false);
+                    Debug.Log("LevelsManager: Restored and deactivated pausedPanel: " + pausedPanel.name);
+                    Button[] pausedButtons = pausedPanel.GetComponentsInChildren<Button>(true);
+                    foreach (Button btn in pausedButtons)
+                    {
+                        if (btn.name.Contains("Resume")) { resumeButton = btn; _backupResumeButton = resumeButton; Debug.Log("LevelsManager: Assigned resumeButton: " + btn.name); }
+                        else if (btn.name.Contains("ClosePaused")) { closePausedButton = btn; _backupClosePausedButton = closePausedButton; Debug.Log("LevelsManager: Assigned closePausedButton: " + btn.name); }
+                        else if (btn.name.Contains("Exit")) { exitButton = btn; _backupExitButton = exitButton; Debug.Log("LevelsManager: Assigned exitButton: " + btn.name); }
+                    }
+                    Debug.Log("LevelsManager: Restored buttons from pausedPanel: resume=" + (resumeButton != null) + ", close=" + (closePausedButton != null) + ", exit=" + (exitButton != null));
+                }
+                else
+                {
+                    Debug.LogError("LevelsManager: Failed to restore pausedPanel, check scene hierarchy!");
+                }
+            }
+            if (questionPanel == null)
+            {
+                questionPanel = GameObject.Find("/Canvas/QuestionPanel") ?? GameObject.Find("QuestionPanel");
+                if (questionPanel == null)
+                {
+                    Debug.LogWarning("LevelsManager: questionPanel not found with Find, searching all inactive objects");
+                    questionPanel = FindInActiveObjectByName("QuestionPanel");
+                }
+                if (questionPanel != null)
+                {
+                    questionPanel.SetActive(false);
+                    Debug.Log("LevelsManager: Restored and deactivated questionPanel: " + questionPanel.name);
+                    Button[] questionButtons = questionPanel.GetComponentsInChildren<Button>(true);
+                    foreach (Button btn in questionButtons)
+                    {
+                        if (btn.name.Contains("Yes")) { yesButton = btn; _backupYesButton = yesButton; Debug.Log("LevelsManager: Assigned yesButton: " + btn.name); }
+                        else if (btn.name.Contains("No")) { noButton = btn; _backupNoButton = noButton; Debug.Log("LevelsManager: Assigned noButton: " + btn.name); }
+                    }
+                    Debug.Log("LevelsManager: Restored buttons from questionPanel: yes=" + (yesButton != null) + ", no=" + (noButton != null));
+                }
+                else
+                {
+                    Debug.LogError("LevelsManager: Failed to restore questionPanel, check scene hierarchy!");
+                }
+            }
+            Debug.Log("LevelsManager: After restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
         }
         else
         {
@@ -310,7 +421,7 @@ public class LevelsManager : MonoBehaviour
         }
         if (pauseButton != null)
         {
-            Debug.Log("LevelsManager: pauseButton not null");
+            Debug.Log("LevelsManager: pauseButton not null, name: " + pauseButton.name);
             pauseButton.gameObject.SetActive(true);
             Debug.Log("LevelsManager: pauseButton set active");
             pauseButton.interactable = true;
@@ -322,7 +433,7 @@ public class LevelsManager : MonoBehaviour
         }
         if (speedButton != null)
         {
-            Debug.Log("LevelsManager: speedButton not null");
+            Debug.Log("LevelsManager: speedButton not null, name: " + speedButton.name);
             speedButton.gameObject.SetActive(true);
             Debug.Log("LevelsManager: speedButton set active");
             speedButton.interactable = true;
@@ -334,7 +445,7 @@ public class LevelsManager : MonoBehaviour
         }
         if (backToMenuButton != null)
         {
-            Debug.Log("LevelsManager: backToMenuButton not null");
+            Debug.Log("LevelsManager: backToMenuButton not null, name: " + backToMenuButton.name);
             backToMenuButton.gameObject.SetActive(true);
             Debug.Log("LevelsManager: backToMenuButton set active");
             backToMenuButton.interactable = true;
@@ -344,11 +455,46 @@ public class LevelsManager : MonoBehaviour
             backToMenuButton.onClick.AddListener(BackToMap);
             Debug.Log("LevelsManager: backToMenuButton listener added: " + (backToMenuButton.onClick.GetPersistentEventCount() > 0));
         }
+        if (resumeButton != null)
+        {
+            Debug.Log("LevelsManager: resumeButton not null, name: " + resumeButton.name);
+            resumeButton.onClick.RemoveAllListeners();
+            resumeButton.onClick.AddListener(ResumeGame);
+            Debug.Log("LevelsManager: resumeButton listener added");
+        }
+        if (closePausedButton != null)
+        {
+            Debug.Log("LevelsManager: closePausedButton not null, name: " + closePausedButton.name);
+            closePausedButton.onClick.RemoveAllListeners();
+            closePausedButton.onClick.AddListener(ResumeGame);
+            Debug.Log("LevelsManager: closePausedButton listener added");
+        }
+        if (exitButton != null)
+        {
+            Debug.Log("LevelsManager: exitButton not null, name: " + exitButton.name);
+            exitButton.onClick.RemoveAllListeners();
+            exitButton.onClick.AddListener(ShowQuestionPanel);
+            Debug.Log("LevelsManager: exitButton listener added");
+        }
+        if (yesButton != null)
+        {
+            Debug.Log("LevelsManager: yesButton not null, name: " + yesButton.name);
+            yesButton.onClick.RemoveAllListeners();
+            yesButton.onClick.AddListener(ExitToMap);
+            Debug.Log("LevelsManager: yesButton listener added");
+        }
+        if (noButton != null)
+        {
+            Debug.Log("LevelsManager: noButton not null, name: " + noButton.name);
+            noButton.onClick.RemoveAllListeners();
+            noButton.onClick.AddListener(ShowPausedPanel);
+            Debug.Log("LevelsManager: noButton listener added");
+        }
         EnsureEventSystem();
         Debug.Log("LevelsManager: EnsureEventSystem called");
         if (speedText != null)
         {
-            Debug.Log("LevelsManager: speedText not null");
+            Debug.Log("LevelsManager: speedText not null, name: " + speedText.name);
             speedText.text = currentSpeed + "x";
             Debug.Log("LevelsManager: speedText updated to " + currentSpeed + "x");
         }
@@ -356,7 +502,7 @@ public class LevelsManager : MonoBehaviour
         {
             Debug.Log("LevelsManager: Scene is Level1Scene");
             LevelManager levelManager = FindObjectOfType<LevelManager>();
-            Debug.Log("LevelsManager: levelManager assigned");
+            Debug.Log("LevelsManager: levelManager assigned: " + (levelManager != null));
             if (levelManager == null)
             {
                 Debug.Log("LevelsManager: levelManager is null");
@@ -372,7 +518,7 @@ public class LevelsManager : MonoBehaviour
         {
             Debug.Log("LevelsManager: Scene is Level2Scene");
             Level2Manager level2Manager = FindObjectOfType<Level2Manager>();
-            Debug.Log("LevelsManager: level2Manager assigned");
+            Debug.Log("LevelsManager: level2Manager assigned: " + (level2Manager != null));
             if (level2Manager == null)
             {
                 Debug.Log("LevelsManager: level2Manager is null");
@@ -388,7 +534,7 @@ public class LevelsManager : MonoBehaviour
         {
             Debug.Log("LevelsManager: Scene is Level4Scene");
             Level4Manager level4Manager = FindObjectOfType<Level4Manager>();
-            Debug.Log("LevelsManager: level4Manager assigned");
+            Debug.Log("LevelsManager: level4Manager assigned: " + (level4Manager != null));
             if (level4Manager == null)
             {
                 Debug.Log("LevelsManager: level4Manager is null");
@@ -404,7 +550,7 @@ public class LevelsManager : MonoBehaviour
         {
             Debug.Log("LevelsManager: Scene is Level3Scene");
             Level3Manager level3Manager = FindObjectOfType<Level3Manager>();
-            Debug.Log("LevelsManager: level3Manager assigned");
+            Debug.Log("LevelsManager: level3Manager assigned: " + (level3Manager != null));
             if (level3Manager == null)
             {
                 Debug.Log("LevelsManager: level3Manager is null");
@@ -420,7 +566,7 @@ public class LevelsManager : MonoBehaviour
         {
             Debug.Log("LevelsManager: Scene is Level5Scene");
             Level5Manager level5Manager = FindObjectOfType<Level5Manager>();
-            Debug.Log("LevelsManager: level5Manager assigned");
+            Debug.Log("LevelsManager: level5Manager assigned: " + (level5Manager != null));
             if (level5Manager == null)
             {
                 Debug.Log("LevelsManager: level5Manager is null");
@@ -438,11 +584,27 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: Time.timeScale set to " + Time.timeScale);
     }
 
+    private GameObject FindInActiveObjectByName(string name)
+    {
+        Debug.Log("LevelsManager: Searching for inactive object: " + name);
+        Transform[] allTransforms = Resources.FindObjectsOfTypeAll<Transform>();
+        foreach (Transform transform in allTransforms)
+        {
+            if (transform.name == name && !transform.gameObject.activeInHierarchy)
+            {
+                Debug.Log("LevelsManager: Found inactive object: " + transform.name);
+                return transform.gameObject;
+            }
+        }
+        Debug.Log("LevelsManager: No inactive object found with name: " + name);
+        return null;
+    }
+
     private void EnsureEventSystem()
     {
         Debug.Log("LevelsManager: EnsureEventSystem called");
         EventSystem eventSystem = FindObjectOfType<EventSystem>();
-        Debug.Log("LevelsManager: eventSystem assigned");
+        Debug.Log("LevelsManager: eventSystem assigned: " + (eventSystem != null));
         if (eventSystem == null)
         {
             Debug.Log("LevelsManager: eventSystem is null");
@@ -455,8 +617,7 @@ public class LevelsManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("LevelsManager: eventSystem not null");
-            Debug.Log("LevelsManager: EventSystem already exists, name: " + eventSystem.name);
+            Debug.Log("LevelsManager: eventSystem not null, name: " + eventSystem.name);
         }
     }
 
@@ -464,9 +625,131 @@ public class LevelsManager : MonoBehaviour
     {
         Debug.Log("LevelsManager: TogglePause called");
         isPaused = !isPaused;
-        Debug.Log("LevelsManager: isPaused set to " + isPaused);
-        Time.timeScale = isPaused ? 0 : currentSpeed;
+        Debug.Log("LevelsManager: isPaused set to " + isPaused + ", pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null"));
+        if (isPaused)
+        {
+            if (pausedPanel != null)
+            {
+                pausedPanel.SetActive(true);
+                Debug.Log("LevelsManager: pausedPanel activated, name: " + pausedPanel.name);
+            }
+            else
+            {
+                Debug.LogError("LevelsManager: pausedPanel is null, cannot activate");
+            }
+            Time.timeScale = 0;
+        }
+        else
+        {
+            if (pausedPanel != null)
+            {
+                pausedPanel.SetActive(false);
+                Debug.Log("LevelsManager: pausedPanel deactivated, name: " + pausedPanel.name);
+            }
+            else
+            {
+                Debug.LogError("LevelsManager: pausedPanel is null, cannot deactivate");
+            }
+            Time.timeScale = currentSpeed;
+        }
         Debug.Log("LevelsManager: Time.timeScale set to " + Time.timeScale);
+    }
+
+    private void ResumeGame()
+    {
+        Debug.Log("LevelsManager: ResumeGame called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null"));
+        isPaused = false;
+        if (pausedPanel != null)
+        {
+            pausedPanel.SetActive(false);
+            Debug.Log("LevelsManager: pausedPanel deactivated, name: " + pausedPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: pausedPanel is null, cannot deactivate");
+        }
+        Time.timeScale = currentSpeed;
+        Debug.Log("LevelsManager: Time.timeScale set to " + Time.timeScale);
+    }
+
+    private void ShowQuestionPanel()
+    {
+        Debug.Log("LevelsManager: ShowQuestionPanel called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+        if (pausedPanel != null)
+        {
+            pausedPanel.SetActive(false);
+            Debug.Log("LevelsManager: pausedPanel deactivated, name: " + pausedPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: pausedPanel is null, cannot deactivate");
+        }
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(true);
+            Debug.Log("LevelsManager: questionPanel activated, name: " + questionPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: questionPanel is null, cannot activate");
+        }
+    }
+
+    private void ExitToMap()
+    {
+        Debug.Log("LevelsManager: ExitToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+        isGameActive = false;
+        isPaused = false;
+        Time.timeScale = 1;
+        if (SceneManager.GetActiveScene().name == "Level1Scene" && LevelManager.main != null)
+        {
+            LevelManager.main.StopGame();
+            LevelManager.main = null;
+        }
+        else if (SceneManager.GetActiveScene().name == "Level2Scene" && Level2Manager.main != null)
+        {
+            Level2Manager.main.StopGame();
+            Level2Manager.main = null;
+        }
+        else if (SceneManager.GetActiveScene().name == "Level4Scene" && Level4Manager.main != null)
+        {
+            Level4Manager.main.StopGame();
+            Level4Manager.main = null;
+        }
+        else if (SceneManager.GetActiveScene().name == "Level3Scene" && Level3Manager.main != null)
+        {
+            Level3Manager.main.StopGame();
+            Level3Manager.main = null;
+        }
+        else if (SceneManager.GetActiveScene().name == "Level5Scene" && Level5Manager.main != null)
+        {
+            Level5Manager.main.StopGame();
+            Level5Manager.main = null;
+        }
+        SceneManager.LoadScene("MapScene");
+    }
+
+    private void ShowPausedPanel()
+    {
+        Debug.Log("LevelsManager: ShowPausedPanel called, questionPanel: " + (questionPanel != null ? questionPanel.name : "null") + ", pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null"));
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(false);
+            Debug.Log("LevelsManager: questionPanel deactivated, name: " + questionPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: questionPanel is null, cannot deactivate");
+        }
+        if (pausedPanel != null)
+        {
+            pausedPanel.SetActive(true);
+            Debug.Log("LevelsManager: pausedPanel activated, name: " + pausedPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: pausedPanel is null, cannot activate");
+        }
     }
 
     private void ChangeSpeed()
@@ -495,7 +778,7 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: UpdateSpeedText called");
         if (speedText != null)
         {
-            Debug.Log("LevelsManager: speedText not null");
+            Debug.Log("LevelsManager: speedText not null, name: " + speedText.name);
             speedText.text = currentSpeed + "x";
             Debug.Log("LevelsManager: speedText updated to " + currentSpeed + "x");
         }
@@ -508,7 +791,7 @@ public class LevelsManager : MonoBehaviour
 
     public void BackToMap()
     {
-        Debug.Log("LevelsManager: BackToMap called");
+        Debug.Log("LevelsManager: BackToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
         isGameActive = false;
         Debug.Log("LevelsManager: isGameActive set to " + isGameActive);
         isPaused = false;
@@ -572,7 +855,7 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: enemies count: " + enemies.Length);
         foreach (GameObject enemy in enemies)
         {
-            Debug.Log("LevelsManager: Destroying enemy");
+            Debug.Log("LevelsManager: Destroying enemy: " + enemy.name);
             Destroy(enemy);
         }
         Debug.Log("LevelsManager: All enemies destroyed");
@@ -585,7 +868,7 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: units count: " + units.Length);
         foreach (GameObject unit in units)
         {
-            Debug.Log("LevelsManager: Destroying unit");
+            Debug.Log("LevelsManager: Destroying unit: " + unit.name);
             Destroy(unit);
         }
         Debug.Log("LevelsManager: All units destroyed");
