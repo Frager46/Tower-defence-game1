@@ -158,7 +158,7 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: OnSceneLoaded called, Scene: " + scene.name + ", Mode: " + mode);
         Debug.Log("LevelsManager: Canvas count: " + FindObjectsOfType<Canvas>().Length);
         Debug.Log("LevelsManager: Instance: " + (Instance != null));
-        Debug.Log("LevelsManager: Initial panel states - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+        Debug.Log("LevelsManager: Initial panel states - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
         if (scene.name == "Level1Scene" || scene.name == "Level2Scene" || scene.name == "Level4Scene" || scene.name == "Level3Scene" || scene.name == "Level5Scene")
         {
             Debug.Log("LevelsManager: Scene is a level scene");
@@ -229,6 +229,8 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: Texts count: " + texts.Length);
             TextMeshProUGUI[] tmpTexts = levelCanvas.GetComponentsInChildren<TextMeshProUGUI>(true);
             Debug.Log("LevelsManager: TMPTexts count: " + tmpTexts.Length);
+            Scrollbar[] scrollbars = levelCanvas.GetComponentsInChildren<Scrollbar>(true);
+            Debug.Log("LevelsManager: Scrollbars count: " + scrollbars.Length);
             pauseButton = null;
             Debug.Log("LevelsManager: pauseButton reset to null");
             speedButton = null;
@@ -345,7 +347,7 @@ public class LevelsManager : MonoBehaviour
                 }
             }
             // Enhanced panel restoration with named button assignment
-            Debug.Log("LevelsManager: Checking panel restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+            Debug.Log("LevelsManager: Checking panel restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
             if (pausedPanel == null)
             {
                 pausedPanel = GameObject.Find("/Canvas/PausedPanel") ?? GameObject.Find("PausedPanel");
@@ -397,7 +399,7 @@ public class LevelsManager : MonoBehaviour
                     Debug.LogError("LevelsManager: Failed to restore questionPanel, check scene hierarchy!");
                 }
             }
-            Debug.Log("LevelsManager: After restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+            Debug.Log("LevelsManager: After restoration - pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
         }
         else
         {
@@ -452,7 +454,7 @@ public class LevelsManager : MonoBehaviour
             Debug.Log("LevelsManager: backToMenuButton set interactable: " + backToMenuButton.interactable);
             backToMenuButton.onClick.RemoveAllListeners();
             Debug.Log("LevelsManager: backToMenuButton listeners removed");
-            backToMenuButton.onClick.AddListener(BackToMap);
+            backToMenuButton.onClick.AddListener(ShowOptionsPanel);
             Debug.Log("LevelsManager: backToMenuButton listener added: " + (backToMenuButton.onClick.GetPersistentEventCount() > 0));
         }
         if (resumeButton != null)
@@ -582,6 +584,7 @@ public class LevelsManager : MonoBehaviour
         Debug.Log("LevelsManager: isPaused set to " + isPaused);
         Time.timeScale = 1;
         Debug.Log("LevelsManager: Time.timeScale set to " + Time.timeScale);
+        DelayedStartLevelGameplay_AddOptions();
     }
 
     private GameObject FindInActiveObjectByName(string name)
@@ -674,7 +677,7 @@ public class LevelsManager : MonoBehaviour
 
     private void ShowQuestionPanel()
     {
-        Debug.Log("LevelsManager: ShowQuestionPanel called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+        Debug.Log("LevelsManager: ShowQuestionPanel called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
         if (pausedPanel != null)
         {
             pausedPanel.SetActive(false);
@@ -697,7 +700,7 @@ public class LevelsManager : MonoBehaviour
 
     private void ExitToMap()
     {
-        Debug.Log("LevelsManager: ExitToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
+        Debug.Log("LevelsManager: ExitToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
         isGameActive = false;
         isPaused = false;
         Time.timeScale = 1;
@@ -731,7 +734,7 @@ public class LevelsManager : MonoBehaviour
 
     private void ShowPausedPanel()
     {
-        Debug.Log("LevelsManager: ShowPausedPanel called, questionPanel: " + (questionPanel != null ? questionPanel.name : "null") + ", pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null"));
+        Debug.Log("LevelsManager: ShowPausedPanel called, questionPanel: " + (questionPanel != null ? questionPanel.name : "null") + ", pausedPanel=" + (pausedPanel != null ? pausedPanel.name : "null"));
         if (questionPanel != null)
         {
             questionPanel.SetActive(false);
@@ -791,86 +794,175 @@ public class LevelsManager : MonoBehaviour
 
     public void BackToMap()
     {
-        Debug.Log("LevelsManager: BackToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel: " + (questionPanel != null ? questionPanel.name : "null"));
-        isGameActive = false;
-        Debug.Log("LevelsManager: isGameActive set to " + isGameActive);
+        Debug.Log("LevelsManager: BackToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
+        // Instead of loading MapScene, show OptionsPanel and freeze game
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(true);
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: optionsPanel is null, cannot activate");
+        }
+    }
+
+    // New fields for OptionsPanel
+    public GameObject optionsPanel;
+    public Button restartButton;
+    public Button exitButtonOptions; // Exit button specific to OptionsPanel
+    public Scrollbar volumeScrollbar; // With Sliding Area and Handle for volume control
+    private float volumeLevel = 0.5f; // Default volume level (placeholder)
+
+    private void ShowOptionsPanel()
+    {
+        Debug.Log("LevelsManager: ShowOptionsPanel called");
+        if (optionsPanel != null)
+        {
+            bool isCurrentlyActive = optionsPanel.activeSelf;
+            optionsPanel.SetActive(!isCurrentlyActive);
+            Time.timeScale = isCurrentlyActive ? 1 : 0; // ¬осстанавливаем или замораживаем врем€
+            Debug.Log("LevelsManager: optionsPanel " + (isCurrentlyActive ? "deactivated" : "activated") + ", name: " + optionsPanel.name);
+        }
+        else
+        {
+        Debug.LogError("LevelsManager: optionsPanel is null, cannot toggle");
+        }
+    }
+
+    private void RestartLevel()
+    {
+        Debug.Log("LevelsManager: RestartLevel called");
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(false);
+            Debug.Log("LevelsManager: optionsPanel deactivated, name: " + optionsPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: optionsPanel is null, cannot deactivate");
+        }
         isPaused = false;
-        Debug.Log("LevelsManager: isPaused set to " + isPaused);
         Time.timeScale = 1;
-        Debug.Log("LevelsManager: Time.timeScale set to " + Time.timeScale);
-        if (SceneManager.GetActiveScene().name == "Level1Scene" && LevelManager.main != null)
+        string currentScene = SceneManager.GetActiveScene().name;
+        Debug.Log("LevelsManager: Restarting scene: " + currentScene);
+        if (currentScene == "Level1Scene" && LevelManager.main != null)
         {
-            Debug.Log("LevelsManager: Scene is Level1Scene and LevelManager.main not null");
             LevelManager.main.StopGame();
-            Debug.Log("LevelsManager: LevelManager.main.StopGame called");
             LevelManager.main = null;
-            Debug.Log("LevelsManager: LevelManager.main reset");
         }
-        else if (SceneManager.GetActiveScene().name == "Level2Scene" && Level2Manager.main != null)
+        else if (currentScene == "Level2Scene" && Level2Manager.main != null)
         {
-            Debug.Log("LevelsManager: Scene is Level2Scene and Level2Manager.main not null");
             Level2Manager.main.StopGame();
-            Debug.Log("LevelsManager: Level2Manager.main.StopGame called");
             Level2Manager.main = null;
-            Debug.Log("LevelsManager: Level2Manager.main reset");
         }
-        else if (SceneManager.GetActiveScene().name == "Level4Scene" && Level4Manager.main != null)
+        else if (currentScene == "Level4Scene" && Level4Manager.main != null)
         {
-            Debug.Log("LevelsManager: Scene is Level4Scene and Level4Manager.main not null");
             Level4Manager.main.StopGame();
-            Debug.Log("LevelsManager: Level4Manager.main.StopGame called");
             Level4Manager.main = null;
-            Debug.Log("LevelsManager: Level4Manager.main reset");
         }
-        else if (SceneManager.GetActiveScene().name == "Level3Scene" && Level3Manager.main != null)
+        else if (currentScene == "Level3Scene" && Level3Manager.main != null)
         {
-            Debug.Log("LevelsManager: Scene is Level3Scene and Level3Manager.main not null");
             Level3Manager.main.StopGame();
-            Debug.Log("LevelsManager: Level3Manager.main.StopGame called");
             Level3Manager.main = null;
-            Debug.Log("LevelsManager: Level3Manager.main reset");
         }
-        else if (SceneManager.GetActiveScene().name == "Level5Scene" && Level5Manager.main != null)
+        else if (currentScene == "Level5Scene" && Level5Manager.main != null)
         {
-            Debug.Log("LevelsManager: Scene is Level5Scene and Level5Manager.main not null");
             Level5Manager.main.StopGame();
-            Debug.Log("LevelsManager: Level5Manager.main.StopGame called");
             Level5Manager.main = null;
-            Debug.Log("LevelsManager: Level5Manager.main reset");
         }
-        Debug.Log("LevelsManager: Loading MapScene");
-        SceneManager.LoadScene("MapScene");
+        SceneManager.LoadScene(currentScene);
+    }
+
+    private void ShowQuestionPanelFromOptions()
+    {
+        Debug.Log("LevelsManager: ShowQuestionPanelFromOptions called, optionsPanel: " + (optionsPanel != null ? optionsPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(false);
+            Debug.Log("LevelsManager: optionsPanel deactivated, name: " + optionsPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: optionsPanel is null, cannot deactivate");
+        }
+        if (questionPanel != null)
+        {
+            questionPanel.SetActive(true);
+            Debug.Log("LevelsManager: questionPanel activated, name: " + questionPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: questionPanel is null, cannot activate");
+        }
+    }
+
+    private void OnVolumeChanged(float value)
+    {
+        Debug.Log("LevelsManager: OnVolumeChanged called, new value: " + value);
+        volumeLevel = value; // Store volume level for future audio implementation
+        // Placeholder: Add audio adjustment logic here when audio is implemented
+    }
+
+    private void DelayedStartLevelGameplay_AddOptions()
+    {
+        Debug.Log("LevelsManager: Initializing OptionsPanel");
+        if (optionsPanel == null)
+        {
+            optionsPanel = GameObject.Find("/Canvas/OptionsPanel") ?? GameObject.Find("OptionsPanel");
+            if (optionsPanel == null)
+            {
+                Debug.LogWarning("LevelsManager: optionsPanel not found with Find, searching all inactive objects");
+                optionsPanel = FindInActiveObjectByName("OptionsPanel");
+            }
+            if (optionsPanel != null)
+            {
+                optionsPanel.SetActive(false);
+                Debug.Log("LevelsManager: Restored and deactivated optionsPanel: " + optionsPanel.name);
+            }
+            else
+            {
+                Debug.LogError("LevelsManager: Failed to restore optionsPanel, check scene hierarchy!");
+            }
+        }
+        Button[] optionsButtons = optionsPanel != null ? optionsPanel.GetComponentsInChildren<Button>(true) : new Button[0];
+        Scrollbar[] scrollbars = optionsPanel != null ? optionsPanel.GetComponentsInChildren<Scrollbar>(true) : new Scrollbar[0];
+        foreach (Button btn in optionsButtons)
+        {
+            Debug.Log("LevelsManager: Checking button in optionsPanel: " + btn.name);
+            if (btn.name.Contains("Restart"))
+            {
+                restartButton = btn;
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(RestartLevel);
+                Debug.Log("LevelsManager: Assigned restartButton: " + btn.name + ", listener added: " + (btn.onClick.GetPersistentEventCount() > 0));
+            }
+            else if (btn.name.Contains("Exit"))
+            {
+                exitButtonOptions = btn;
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(ShowQuestionPanelFromOptions);
+                Debug.Log("LevelsManager: Assigned exitButtonOptions: " + btn.name + ", listener added: " + (btn.onClick.GetPersistentEventCount() > 0));
+            }
+        }
+        foreach (Scrollbar sb in scrollbars)
+        {
+            if (sb.name.Contains("Volume"))
+            {
+                volumeScrollbar = sb;
+                volumeScrollbar.value = volumeLevel;
+                volumeScrollbar.onValueChanged.RemoveAllListeners();
+                volumeScrollbar.onValueChanged.AddListener(OnVolumeChanged);
+                Debug.Log("LevelsManager: Assigned volumeScrollbar: " + sb.name + ", listener added");
+                break;
+            }
+        }
+        Debug.Log("LevelsManager: Restored buttons from optionsPanel: restart=" + (restartButton != null) + ", exit=" + (exitButtonOptions != null) + ", volume=" + (volumeScrollbar != null));
     }
 
     public bool IsGameActive()
     {
         Debug.Log("LevelsManager: IsGameActive called, returning " + isGameActive);
         return isGameActive;
-    }
-
-    private void DestroyAllEnemies()
-    {
-        Debug.Log("LevelsManager: DestroyAllEnemies called");
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        Debug.Log("LevelsManager: enemies count: " + enemies.Length);
-        foreach (GameObject enemy in enemies)
-        {
-            Debug.Log("LevelsManager: Destroying enemy: " + enemy.name);
-            Destroy(enemy);
-        }
-        Debug.Log("LevelsManager: All enemies destroyed");
-    }
-
-    private void DestroyAllUnits()
-    {
-        Debug.Log("LevelsManager: DestroyAllUnits called");
-        GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
-        Debug.Log("LevelsManager: units count: " + units.Length);
-        foreach (GameObject unit in units)
-        {
-            Debug.Log("LevelsManager: Destroying unit: " + unit.name);
-            Destroy(unit);
-        }
-        Debug.Log("LevelsManager: All units destroyed");
     }
 }
