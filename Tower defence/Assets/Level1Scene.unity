@@ -13190,6 +13190,7 @@ MonoBehaviour:
   resumeButton: {fileID: 1839488095}
   closePausedButton: {fileID: 1359424975}
   exitButton: {fileID: 1509173838}
+  optionsButton: {fileID: 202441038}
   questionPanel: {fileID: 1830126843}
   yesButton: {fileID: 1861084204}
   noButton: {fileID: 1686011354}

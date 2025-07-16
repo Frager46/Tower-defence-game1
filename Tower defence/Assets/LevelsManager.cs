@@ -21,6 +21,7 @@ public class LevelsManager : MonoBehaviour
     public Button resumeButton; // Кнопка возобновления
     public Button closePausedButton; // Кнопка закрытия паузы
     public Button exitButton; // Кнопка выхода
+    public Button optionsButton; // Button to open OptionsPanel from PausedPanel
     public GameObject questionPanel; // Панель подтверждения выхода
     public Button yesButton; // Кнопка "Да" для выхода
     public Button noButton; // Кнопка "Нет" для возврата
@@ -36,6 +37,7 @@ public class LevelsManager : MonoBehaviour
     private static Button _backupResumeButton;
     private static Button _backupClosePausedButton;
     private static Button _backupExitButton;
+    private static Button _backupOptionsButton;
     private static Button _backupYesButton;
     private static Button _backupNoButton;
 
@@ -56,6 +58,7 @@ public class LevelsManager : MonoBehaviour
             resumeButton = _backupResumeButton != null ? _backupResumeButton : resumeButton;
             closePausedButton = _backupClosePausedButton != null ? _backupClosePausedButton : closePausedButton;
             exitButton = _backupExitButton != null ? _backupExitButton : exitButton;
+            optionsButton = _backupOptionsButton != null ? _backupOptionsButton : optionsButton;
             yesButton = _backupYesButton != null ? _backupYesButton : yesButton;
             noButton = _backupNoButton != null ? _backupNoButton : noButton;
             Debug.Log("LevelsManager: Restored button references from backups: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
@@ -73,6 +76,7 @@ public class LevelsManager : MonoBehaviour
                 _backupResumeButton = resumeButton != null ? resumeButton : _backupResumeButton;
                 _backupClosePausedButton = closePausedButton != null ? closePausedButton : _backupClosePausedButton;
                 _backupExitButton = exitButton != null ? exitButton : _backupExitButton;
+                _backupOptionsButton = optionsButton != null ? optionsButton : _backupOptionsButton;
                 _backupYesButton = yesButton != null ? yesButton : _backupYesButton;
                 _backupNoButton = noButton != null ? noButton : _backupNoButton;
                 Debug.Log("LevelsManager: Backed up new instance's buttons: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
@@ -145,6 +149,7 @@ public class LevelsManager : MonoBehaviour
             _backupResumeButton = resumeButton;
             _backupClosePausedButton = closePausedButton;
             _backupExitButton = exitButton;
+            _backupOptionsButton = optionsButton;
             _backupYesButton = yesButton;
             _backupNoButton = noButton;
             Debug.Log("LevelsManager: Backed up all button references: pausedPanel=" + (pausedPanel != null) + ", questionPanel=" + (questionPanel != null));
@@ -240,6 +245,7 @@ public class LevelsManager : MonoBehaviour
             resumeButton = _backupResumeButton != null ? _backupResumeButton : resumeButton;
             closePausedButton = _backupClosePausedButton != null ? _backupClosePausedButton : closePausedButton;
             exitButton = _backupExitButton != null ? _backupExitButton : exitButton;
+            optionsButton = _backupOptionsButton != null ? _backupOptionsButton : optionsButton;
             yesButton = _backupYesButton != null ? _backupYesButton : yesButton;
             noButton = _backupNoButton != null ? _backupNoButton : noButton;
             speedText = null;
@@ -366,8 +372,9 @@ public class LevelsManager : MonoBehaviour
                         if (btn.name.Contains("Resume")) { resumeButton = btn; _backupResumeButton = resumeButton; Debug.Log("LevelsManager: Assigned resumeButton: " + btn.name); }
                         else if (btn.name.Contains("ClosePaused")) { closePausedButton = btn; _backupClosePausedButton = closePausedButton; Debug.Log("LevelsManager: Assigned closePausedButton: " + btn.name); }
                         else if (btn.name.Contains("Exit")) { exitButton = btn; _backupExitButton = exitButton; Debug.Log("LevelsManager: Assigned exitButton: " + btn.name); }
+                        else if (btn.name.Contains("Options")) { optionsButton = btn; _backupOptionsButton = optionsButton; Debug.Log("LevelsManager: Assigned optionsButton: " + btn.name); }
                     }
-                    Debug.Log("LevelsManager: Restored buttons from pausedPanel: resume=" + (resumeButton != null) + ", close=" + (closePausedButton != null) + ", exit=" + (exitButton != null));
+                    Debug.Log("LevelsManager: Restored buttons from pausedPanel: resume=" + (resumeButton != null) + ", close=" + (closePausedButton != null) + ", exit=" + (exitButton != null) + ", options=" + (optionsButton != null));
                 }
                 else
                 {
@@ -477,6 +484,13 @@ public class LevelsManager : MonoBehaviour
             exitButton.onClick.RemoveAllListeners();
             exitButton.onClick.AddListener(ShowQuestionPanel);
             Debug.Log("LevelsManager: exitButton listener added");
+        }
+        if (optionsButton != null)
+        {
+            Debug.Log("LevelsManager: optionsButton not null, name: " + optionsButton.name);
+            optionsButton.onClick.RemoveAllListeners();
+            optionsButton.onClick.AddListener(ShowOptionsFromPaused);
+            Debug.Log("LevelsManager: optionsButton listener added");
         }
         if (yesButton != null)
         {
@@ -698,6 +712,29 @@ public class LevelsManager : MonoBehaviour
         }
     }
 
+    private void ShowOptionsFromPaused()
+    {
+        Debug.Log("LevelsManager: ShowOptionsFromPaused called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", optionsPanel=" + (optionsPanel != null ? optionsPanel.name : "null"));
+        if (pausedPanel != null)
+        {
+            pausedPanel.SetActive(false);
+            Debug.Log("LevelsManager: pausedPanel deactivated, name: " + pausedPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: pausedPanel is null, cannot deactivate");
+        }
+        if (optionsPanel != null)
+        {
+            optionsPanel.SetActive(true);
+            Debug.Log("LevelsManager: optionsPanel activated, name: " + optionsPanel.name);
+        }
+        else
+        {
+            Debug.LogError("LevelsManager: optionsPanel is null, cannot activate");
+        }
+    }
+
     private void ExitToMap()
     {
         Debug.Log("LevelsManager: ExitToMap called, pausedPanel: " + (pausedPanel != null ? pausedPanel.name : "null") + ", questionPanel=" + (questionPanel != null ? questionPanel.name : "null"));
@@ -826,7 +863,7 @@ public class LevelsManager : MonoBehaviour
         }
         else
         {
-        Debug.LogError("LevelsManager: optionsPanel is null, cannot toggle");
+            Debug.LogError("LevelsManager: optionsPanel is null, cannot toggle");
         }
     }
 
