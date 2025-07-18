@@ -581,7 +581,7 @@ MonoBehaviour:
   placeForUnit2Button: {fileID: 2132331555}
   placeForUnit3Button: {fileID: 1751145729}
   shopPanel: {fileID: 1246574314}
-  lockSprite: {fileID: 21300000, guid: 8fbb76b341a292e48b0845c536104811, type: 3}
+  lockSprite: {fileID: 21300000, guid: 9658a95462a30b3408ce1a83afb3532e, type: 3}
   sceneObjectsToHide:
   - {fileID: 1298677701}
   - {fileID: 475426503}

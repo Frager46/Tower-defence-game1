@@ -8,9 +8,18 @@ public class EnemyMovement : MonoBehaviour
     private int currentPoint = 0;
     private float speed = 2f;
     private bool isMoving = true;
+    private SpriteRenderer spriteRenderer; // Добавлено для управления спрайтом
 
     private void Start()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>(); // Получаем SpriteRenderer
+        if (spriteRenderer == null)
+        {
+            Debug.LogError($"EnemyMovement: SpriteRenderer отсутствует на {gameObject.name} в сцене {SceneManager.GetActiveScene().name}");
+            isMoving = false;
+            return;
+        }
+
         if (path == null || path.Length == 0)
         {
             Debug.LogError($"EnemyMovement: Путь не задан или пуст для {gameObject.name} в сцене {SceneManager.GetActiveScene().name}");
@@ -29,6 +38,19 @@ public class EnemyMovement : MonoBehaviour
         if (currentPoint < path.Length)
         {
             Vector2 target = path[currentPoint].position;
+            // Определяем направление движения
+            float direction = target.x - transform.position.x;
+            if (direction < 0)
+            {
+                spriteRenderer.flipX = true; // Движение влево
+            }
+            else if (direction > 0)
+            {
+                spriteRenderer.flipX = false; // Движение вправо
+            }
+            // Логи для отладки
+            Debug.Log($"EnemyMovement: {gameObject.name}, direction={direction}, flipX={spriteRenderer.flipX}, moving to {target}");
+
             transform.position = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
             if (Vector2.Distance(transform.position, target) < 0.1f)

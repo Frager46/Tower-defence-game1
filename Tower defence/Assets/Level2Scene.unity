@@ -16199,7 +16199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a86e94ca0b5d2f343ab53bc26c28be6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 130
   fullHPSprites:
   - {fileID: 21300000, guid: a22f1f7ea94215c4b90b05a998e4f6c5, type: 3}
   halfHPSprites:
