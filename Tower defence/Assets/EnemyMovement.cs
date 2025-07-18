@@ -1,132 +1,240 @@
-using System.Collections;                                             
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] protected Rigidbody2D rb;
-
     public Transform[] path;
-    private int pathIndex = 0;
-    private Transform target;
-    protected Health health;
-
-    [SerializeField] private Animator animator; // Компонент Animator
-    [SerializeField] private float moveSpeed = 2f; // Скорость движения
-    [SerializeField] private bool isFlying = false; // Указывает, использует ли враг анимацию Fly
-
-    private bool hasPlayedDeathAnimation = false; // Флаг для анимации смерти
-
-    private LevelManager levelManager; // Ссылка на LevelManager
+    private int currentPoint = 0;
+    private float speed = 2f;
+    private bool isMoving = true;
 
     private void Start()
     {
-        health = GetComponent<Health>();
-        levelManager = FindObjectOfType<LevelManager>(); // Находим LevelManager в сцене
-        if (health == null)
+        if (path == null || path.Length == 0)
         {
-            Debug.LogError($"Компонент Health отсутствует на враге {gameObject.name}!");
+            Debug.LogError($"EnemyMovement: Путь не задан или пуст для {gameObject.name} в сцене {SceneManager.GetActiveScene().name}");
+            isMoving = false;
+            return;
         }
-        if (levelManager == null)
-        {
-            Debug.LogError("LevelManager не найден в сцене!");
-        }
-
-        if (path != null && path.Length > 0)
-        {
-            target = path[pathIndex];
-            Debug.Log($"EnemyMovement: Путь установлен для {gameObject.name}, точек в пути: {path.Length}, начальная точка: {target.position}");
-        }
-        else
-        {
-            Debug.LogError($"Путь path не задан для врага {gameObject.name}!");
-        }
-
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
-        if (animator != null)
-        {
-            animator.Play(isFlying ? "Fly" : "Walk");
-            Debug.Log($"EnemyMovement: Анимация {(isFlying ? "Fly" : "Walk")} запущена для {gameObject.name}");
-        }
+        Debug.Log($"EnemyMovement: Начало движения для {gameObject.name}, точек в пути: {path.Length}, сцена: {SceneManager.GetActiveScene().name}");
+        transform.position = path[0].position;
     }
 
     private void Update()
     {
-        if (target == null || health == null || health.IsDead())
-        {
-            if (health != null && health.IsDead())
-            {
-                Debug.Log($"EnemyMovement: {gameObject.name} мёртв, движение остановлено");
-                if (animator != null && !hasPlayedDeathAnimation)
-                {
-                    animator.SetBool("isDead", true);
-                    hasPlayedDeathAnimation = true;
-                    Debug.Log($"EnemyMovement: Установлен параметр isDead = true для {gameObject.name}");
-                }
-            }
-            if (target == null)
-            {
-                Debug.LogWarning($"EnemyMovement: {gameObject.name} не имеет цели для движения, pathIndex: {pathIndex}, path.Length: {path?.Length}");
-            }
+        if (!isMoving)
             return;
-        }
 
-        float distanceToTarget = Vector2.Distance(transform.position, target.position);
-        Debug.Log($"EnemyMovement: {gameObject.name} расстояние до цели {target.name}: {distanceToTarget}");
-
-        if (distanceToTarget <= 0.1f)
+        if (currentPoint < path.Length)
         {
-            pathIndex++;
-            Debug.Log($"EnemyMovement: {gameObject.name} достиг точки {pathIndex - 1} в {target.position}");
+            Vector2 target = path[currentPoint].position;
+            transform.position = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
 
-            if (pathIndex >= path.Length)
+            if (Vector2.Distance(transform.position, target) < 0.1f)
             {
-                Debug.Log($"EnemyMovement: {gameObject.name} достиг конца пути, pathIndex: {pathIndex}, path.Length: {path.Length}");
-                if (levelManager != null)
+                currentPoint++;
+                if (currentPoint >= path.Length)
                 {
-                    levelManager.NotifyEnemyReachedEnd(); // Уведомляем LevelManager
-                    Debug.Log($"EnemyMovement: Уведомление LevelManager о достижении конца для {gameObject.name}");
+                    Debug.Log($"EnemyMovement: {gameObject.name} достиг конца пути, уведомляем менеджера уровня");
+                    StartCoroutine(NotifyLevelManagerReachedEndWithRetry());
+                    Destroy(gameObject);
+                    return;
                 }
-                Destroy(gameObject); // Уничтожаем врага
-                return;
             }
-
-            target = path[pathIndex];
-            Debug.Log($"EnemyMovement: Новая цель для {gameObject.name}: {target.position}");
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        if (target == null || health == null || health.IsDead()) return;
-
-        Vector2 direction = (target.position - transform.position).normalized;
-        rb.velocity = direction * moveSpeed;
-        Debug.Log($"EnemyMovement: {gameObject.name} движется со скоростью {rb.velocity} к {target.position}");
-
-        // Разворачиваем врага в сторону движения
-        if (direction.x < 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1); // Разворот влево
-        }
-        else if (direction.x > 0)
-        {
-            transform.localScale = new Vector3(1, 1, 1); // Разворот вправо
-        }
-
-        // Обновляем анимацию
-        if (animator != null)
-        {
-            animator.SetBool("isDead", health.IsDead());
         }
     }
 
     private void OnDestroy()
     {
-        Debug.Log($"EnemyMovement: {gameObject.name} уничтожен");
+        if (currentPoint < path.Length)
+        {
+            Debug.Log($"EnemyMovement: {gameObject.name} уничтожен до достижения конца пути, уведомляем менеджера уровня");
+            StartCoroutine(NotifyLevelManagerDestroyedWithRetry());
+        }
+    }
+
+    private System.Collections.IEnumerator NotifyLevelManagerReachedEndWithRetry()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        Debug.Log($"EnemyMovement: Уведомление менеджера уровня в сцене {sceneName} для {gameObject.name}");
+        int maxRetries = 3;
+        float retryDelay = 0.1f;
+
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            try
+            {
+                switch (sceneName)
+                {
+                    case "Level1Scene":
+                        if (LevelManager.main != null)
+                        {
+                            LevelManager.main.NotifyEnemyReachedEnd(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление LevelManager успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: LevelManager.main is null для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level2Scene":
+                        if (Level2Manager.main != null)
+                        {
+                            Level2Manager.main.NotifyEnemyReachedEnd(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level2Manager успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level2Manager.main is null для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level3Scene":
+                        if (Level3Manager.main != null)
+                        {
+                            Level3Manager.main.NotifyEnemyReachedEnd(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level3Manager успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level3Manager.main is null для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level4Scene":
+                        if (Level4Manager.main != null)
+                        {
+                            Level4Manager.main.NotifyEnemyReachedEnd(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level4Manager успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level4Manager.main is null для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level5Scene":
+                        if (Level5Manager.main != null)
+                        {
+                            Level5Manager.main.NotifyEnemyReachedEnd(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level5Manager успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level5Manager.main is null для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    default:
+                        Debug.LogError($"EnemyMovement: Неизвестная сцена {sceneName}, уведомление менеджера уровня не выполнено для {gameObject.name}");
+                        yield break;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"EnemyMovement: Ошибка при уведомлении менеджера уровня для {gameObject.name}: {e.Message}");
+                yield break;
+            }
+
+            if (attempt < maxRetries - 1)
+            {
+                yield return new WaitForSeconds(retryDelay);
+            }
+        }
+        Debug.LogError($"EnemyMovement: Не удалось уведомить менеджер уровня для {gameObject.name} в сцене {sceneName} после {maxRetries} попыток. Проверяйте наличие соответствующего менеджера в сцене!");
+    }
+
+    private System.Collections.IEnumerator NotifyLevelManagerDestroyedWithRetry()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        Debug.Log($"EnemyMovement: Уведомление менеджера об уничтожении {gameObject.name} в сцене {sceneName}");
+        int maxRetries = 3;
+        float retryDelay = 0.1f;
+
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            try
+            {
+                switch (sceneName)
+                {
+                    case "Level1Scene":
+                        if (LevelManager.main != null)
+                        {
+                            LevelManager.main.NotifyEnemyDestroyed(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление LevelManager об уничтожении успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: LevelManager.main is null при уведомлении об уничтожении для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level2Scene":
+                        if (Level2Manager.main != null)
+                        {
+                            Level2Manager.main.NotifyEnemyDestroyed(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level2Manager об уничтожении успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level2Manager.main is null при уведомлении об уничтожении для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level3Scene":
+                        if (Level3Manager.main != null)
+                        {
+                            Level3Manager.main.NotifyEnemyDestroyed(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level3Manager об уничтожении успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level3Manager.main is null при уведомлении об уничтожении для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level4Scene":
+                        if (Level4Manager.main != null)
+                        {
+                            Level4Manager.main.NotifyEnemyDestroyed(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level4Manager об уничтожении успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level4Manager.main is null при уведомлении об уничтожении для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    case "Level5Scene":
+                        if (Level5Manager.main != null)
+                        {
+                            Level5Manager.main.NotifyEnemyDestroyed(gameObject);
+                            Debug.Log($"EnemyMovement: Уведомление Level5Manager об уничтожении успешно для {gameObject.name}");
+                            yield break;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"EnemyMovement: Level5Manager.main is null при уведомлении об уничтожении для {gameObject.name} в сцене {sceneName}, попытка {attempt + 1}/{maxRetries}");
+                        }
+                        break;
+                    default:
+                        Debug.LogError($"EnemyMovement: Неизвестная сцена {sceneName}, уведомление об уничтожении не выполнено для {gameObject.name}");
+                        yield break;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"EnemyMovement: Ошибка при уведомлении об уничтожении для {gameObject.name}: {e.Message}");
+                yield break;
+            }
+
+            if (attempt < maxRetries - 1)
+            {
+                yield return new WaitForSeconds(retryDelay);
+            }
+        }
+        Debug.LogError($"EnemyMovement: Не удалось уведомить менеджер об уничтожении для {gameObject.name} в сцене {sceneName} после {maxRetries} попыток. Проверяйте наличие соответствующего менеджера в сцене!");
     }
 }

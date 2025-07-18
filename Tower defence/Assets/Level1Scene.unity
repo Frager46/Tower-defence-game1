@@ -684,6 +684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartPoint: {fileID: 729895768}
   path:
+  - {fileID: 729895768}
   - {fileID: 1774961632}
   - {fileID: 260075243}
   - {fileID: 409487824}
@@ -702,10 +703,9 @@ MonoBehaviour:
   - {fileID: 1451436092}
   - {fileID: 2115259811}
   - {fileID: 411648540}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1618052382}
+  - {fileID: 515424352}
+  - {fileID: 1578604615}
   - {fileID: 1900044241}
   enemyPrefab: {fileID: 5905140543130763069, guid: 2e3fdd78c44e3b249b484705b13734de, type: 3}
   spawnPoint: {fileID: 729895768}
@@ -717,7 +717,7 @@ MonoBehaviour:
   - enemyCount: 6
     spawnDelay: 1.3
   villageHealth: {fileID: 640905895}
-  waveDelay: 35
+  waveDelay: 10
 --- !u!4 &157769559
 Transform:
   m_ObjectHideFlags: 0

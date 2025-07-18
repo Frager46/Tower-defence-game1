@@ -377,6 +377,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartPoint: {fileID: 729895768}
   path:
+  - {fileID: 729895768}
   - {fileID: 1774961632}
   - {fileID: 260075243}
   - {fileID: 409487824}
@@ -385,15 +386,17 @@ MonoBehaviour:
   - {fileID: 490385230}
   - {fileID: 2050148161}
   - {fileID: 1900044241}
-  enemyPrefab: {fileID: 5905140543130763069, guid: 2e3fdd78c44e3b249b484705b13734de, type: 3}
+  enemyPrefab: {fileID: 4212886607573048088, guid: a27610f08c0a50441bb0c246d3d78082, type: 3}
   spawnPoint: {fileID: 729895768}
   waves:
   - enemyCount: 4
     spawnDelay: 1.3
   - enemyCount: 5
     spawnDelay: 1.3
+  - enemyCount: 6
+    spawnDelay: 1.3
   villageHealth: {fileID: 640905895}
-  waveDelay: 21
+  waveDelay: 13
 --- !u!1 &178017611
 GameObject:
   m_ObjectHideFlags: 0
@@ -2131,7 +2134,7 @@ Transform:
   m_GameObject: {fileID: 490385229}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 27.41, y: 11.43, z: 0}
+  m_LocalPosition: {x: 27.29, y: 12.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16486,7 +16489,7 @@ Transform:
   m_GameObject: {fileID: 2050148160}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 25.29, y: 13.69, z: 0}
+  m_LocalPosition: {x: 24.23, y: 13.49, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

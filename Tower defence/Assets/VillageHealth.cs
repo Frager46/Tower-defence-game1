@@ -27,8 +27,22 @@ public class VillageHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null) Debug.LogError("SpriteRenderer не найден на Village!");
-        if (healthBarImage == null) Debug.LogError("HealthBarImage не найден!");
+        if (spriteRenderer == null) Debug.LogError("VillageHealth: SpriteRenderer не найден на Village!");
+        if (healthBarImage == null) Debug.LogError("VillageHealth: HealthBarImage не найден!");
+        if (fullHPSprites.Length == 0 || halfHPSprites.Length == 0 || zeroHPSprites.Length == 0)
+            Debug.LogError("VillageHealth: Village sprite arrays are empty!");
+        if (healthBarFullHP.Length == 0 || healthBarHalfHP.Length == 0 || healthBarZeroHP.Length == 0)
+            Debug.LogError("VillageHealth: HealthBar sprite arrays are empty!");
+        Debug.Log($"VillageHealth.Start: currentHealth={currentHealth}, healthBarImage={healthBarImage != null}, sprite={healthBarImage?.sprite?.name}");
+        UpdateHealthBar();
+        UpdateSprite();
+    }
+
+    // Сброс здоровья до максимального
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        Debug.Log($"VillageHealth: ResetHealth called, currentHealth={currentHealth}");
         UpdateHealthBar();
         UpdateSprite();
     }
@@ -38,7 +52,7 @@ public class VillageHealth : MonoBehaviour
     {
         levelIndex = Mathf.Clamp(index, 0, Mathf.Max(fullHPSprites.Length - 1, halfHPSprites.Length - 1, zeroHPSprites.Length - 1, 
                                                     healthBarFullHP.Length - 1, healthBarHalfHP.Length - 1, healthBarZeroHP.Length - 1));
-        Debug.Log($"VillageHealth: Set level index to {levelIndex}");
+        Debug.Log($"VillageHealth: Set level index to {levelIndex}, currentHealth={currentHealth}");
         UpdateSprite();
         UpdateHealthBar();
     }
@@ -48,13 +62,13 @@ public class VillageHealth : MonoBehaviour
     {
         currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth); // Не допускаем отрицательного здоровья
-        Debug.Log($"Village получил урон, текущее здоровье: {currentHealth}");
+        Debug.Log($"VillageHealth: TakeDamage called with damage={damage}, currentHealth={currentHealth}");
         UpdateHealthBar();
         UpdateSprite();
 
         if (currentHealth <= 0)
         {
-            Debug.Log("Village разрушен!");
+            Debug.Log("VillageHealth: Village разрушен!");
         }
     }
 
@@ -65,19 +79,25 @@ public class VillageHealth : MonoBehaviour
         {
             if (currentHealth > maxHealth / 2)
             {
-                healthBarImage.sprite = healthBarFullHP.Length > levelIndex ? healthBarFullHP[levelIndex] : healthBarFullHP[0];
-                Debug.Log("Healthbar обновлён на FullHP");
+                healthBarImage.sprite = healthBarFullHP.Length > levelIndex ? healthBarFullHP[levelIndex] : (healthBarFullHP.Length > 0 ? healthBarFullHP[0] : null);
+                Debug.Log($"VillageHealth: Healthbar обновлён на FullHP, sprite={(healthBarImage.sprite != null ? healthBarImage.sprite.name : "null")}");
             }
             else if (currentHealth > 0)
             {
-                healthBarImage.sprite = healthBarHalfHP.Length > levelIndex ? healthBarHalfHP[levelIndex] : healthBarHalfHP[0];
-                Debug.Log("Healthbar обновлён на HalfHP");
+                healthBarImage.sprite = healthBarHalfHP.Length > levelIndex ? healthBarHalfHP[levelIndex] : (healthBarHalfHP.Length > 0 ? healthBarHalfHP[0] : null);
+                Debug.Log($"VillageHealth: Healthbar обновлён на HalfHP, sprite={(healthBarImage.sprite != null ? healthBarImage.sprite.name : "null")}");
             }
             else
             {
-                healthBarImage.sprite = healthBarZeroHP.Length > levelIndex ? healthBarZeroHP[levelIndex] : healthBarZeroHP[0];
-                Debug.Log("Healthbar обновлён на ZeroHP");
+                healthBarImage.sprite = healthBarZeroHP.Length > levelIndex ? healthBarZeroHP[levelIndex] : (healthBarZeroHP.Length > 0 ? healthBarZeroHP[0] : null);
+                Debug.Log($"VillageHealth: Healthbar обновлён на ZeroHP, sprite={(healthBarImage.sprite != null ? healthBarImage.sprite.name : "null")}");
             }
+            if (healthBarImage.sprite == null)
+                Debug.LogError("VillageHealth: Healthbar sprite is null, check sprite arrays!");
+        }
+        else
+        {
+            Debug.LogError("VillageHealth: healthBarImage is null in UpdateHealthBar!");
         }
     }
 
@@ -88,25 +108,32 @@ public class VillageHealth : MonoBehaviour
         {
             if (currentHealth > maxHealth / 2)
             {
-                spriteRenderer.sprite = fullHPSprites.Length > levelIndex ? fullHPSprites[levelIndex] : fullHPSprites[0];
-                Debug.Log("Village спрайт обновлён на FullHP");
+                spriteRenderer.sprite = fullHPSprites.Length > levelIndex ? fullHPSprites[levelIndex] : (fullHPSprites.Length > 0 ? fullHPSprites[0] : null);
+                Debug.Log($"VillageHealth: Village спрайт обновлён на FullHP, sprite={(spriteRenderer.sprite != null ? spriteRenderer.sprite.name : "null")}");
             }
             else if (currentHealth > 0)
             {
-                spriteRenderer.sprite = halfHPSprites.Length > levelIndex ? halfHPSprites[levelIndex] : halfHPSprites[0];
-                Debug.Log("Village спрайт обновлён на HalfHP");
+                spriteRenderer.sprite = halfHPSprites.Length > levelIndex ? halfHPSprites[levelIndex] : (halfHPSprites.Length > 0 ? halfHPSprites[0] : null);
+                Debug.Log($"VillageHealth: Village спрайт обновлён на HalfHP, sprite={(spriteRenderer.sprite != null ? spriteRenderer.sprite.name : "null")}");
             }
             else
             {
-                spriteRenderer.sprite = zeroHPSprites.Length > levelIndex ? zeroHPSprites[levelIndex] : zeroHPSprites[0];
-                Debug.Log("Village спрайт обновлён на ZeroHP");
+                spriteRenderer.sprite = zeroHPSprites.Length > levelIndex ? zeroHPSprites[levelIndex] : (zeroHPSprites.Length > 0 ? zeroHPSprites[0] : null);
+                Debug.Log($"VillageHealth: Village спрайт обновлён на ZeroHP, sprite={(spriteRenderer.sprite != null ? spriteRenderer.sprite.name : "null")}");
             }
+            if (spriteRenderer.sprite == null)
+                Debug.LogError("VillageHealth: Village sprite is null, check sprite arrays!");
+        }
+        else
+        {
+            Debug.LogError("VillageHealth: spriteRenderer is null in UpdateSprite!");
         }
     }
 
     // Метод для получения текущего здоровья
     public int GetCurrentHealth()
     {
+        Debug.Log($"VillageHealth: GetCurrentHealth called, returning {currentHealth}");
         return currentHealth;
     }
 }
