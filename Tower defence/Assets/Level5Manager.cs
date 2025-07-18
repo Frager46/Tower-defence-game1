@@ -27,6 +27,7 @@ public class Level5Manager : MonoBehaviour
 
     [Header("Wave Delay")]
     public float waveDelay = 2f;
+    public float loseSceneTransitionDelay = 2f; // Задержка перед переходом в MapScene
 
     private int currentWave = 0;
     private bool waveInProgress = false;
@@ -115,8 +116,15 @@ public class Level5Manager : MonoBehaviour
         if (villageHealth != null)
         {
             villageHealth.SetLevelIndex(4);
-            villageHealth.ResetHealth();
-            Debug.Log("Level5Manager: villageHealth reset and SetLevelIndex(4) called");
+            if (!villageHealth.IsVillageDestroyed())
+            {
+                villageHealth.ResetHealth();
+                Debug.Log("Level5Manager: villageHealth reset and SetLevelIndex(4) called");
+            }
+            else
+            {
+                Debug.Log("Level5Manager: villageHealth not reset because village is destroyed");
+            }
         }
         else
         {
@@ -140,7 +148,9 @@ public class Level5Manager : MonoBehaviour
         if (villageHealth != null)
         {
             villageHealth.SetLevelIndex(4);
-            Debug.Log("Level5Manager: villageHealth.SetLevelIndex(4) called");
+            villageHealth.ResetVillageDestroyed();
+            villageHealth.ResetHealth();
+            Debug.Log("Level5Manager: villageHealth.SetLevelIndex(4) and ResetVillageDestroyed called");
         }
         else
         {
@@ -153,7 +163,8 @@ public class Level5Manager : MonoBehaviour
     public void StopGame()
     {
         Debug.Log("Level5Manager: StopGame called");
-        ResetManager();
+        gameStarted = false;
+        StopAllCoroutines();
         Debug.Log("Level5Manager: Game stopped, all coroutines halted");
     }
 
@@ -218,8 +229,9 @@ public class Level5Manager : MonoBehaviour
                     ApplyWaveDamage();
                     if (villageHealth.GetCurrentHealth() <= 0)
                     {
-                        Debug.Log("Level5Manager: Village destroyed, ending game");
+                        Debug.Log($"Level5Manager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before loading MapScene");
                         StopGame();
+                        yield return new WaitForSeconds(loseSceneTransitionDelay);
                         SceneManager.LoadScene("MapScene");
                         yield break;
                     }

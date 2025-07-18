@@ -16,7 +16,7 @@ public class LevelManager : MonoBehaviour
     }
 
     [Header("Path Settings")]
-    public Transform StartPoint; // Renamed from StartPoint to match spawnPoint for clarity
+    public Transform StartPoint;
     public Transform[] path;
 
     [Header("Wave Settings")]
@@ -27,6 +27,7 @@ public class LevelManager : MonoBehaviour
 
     [Header("Wave Delay")]
     public float waveDelay = 2f;
+    public float loseSceneTransitionDelay = 2f; // Задержка перед переходом в MapScene
 
     private int currentWave = 0;
     private bool waveInProgress = false;
@@ -112,12 +113,18 @@ public class LevelManager : MonoBehaviour
         enemiesReachedEnd = 0;
         enemiesProcessed = 0;
         activeEnemies.Clear();
-        // Removed: main = null; // Keep singleton intact
         if (villageHealth != null)
         {
             villageHealth.SetLevelIndex(0);
-            villageHealth.ResetHealth();
-            Debug.Log("LevelManager: villageHealth reset and SetLevelIndex(0) called");
+            if (!villageHealth.IsVillageDestroyed())
+            {
+                villageHealth.ResetHealth();
+                Debug.Log("LevelManager: villageHealth reset and SetLevelIndex(0) called");
+            }
+            else
+            {
+                Debug.Log("LevelManager: villageHealth not reset because village is destroyed");
+            }
         }
         else
         {
@@ -141,7 +148,9 @@ public class LevelManager : MonoBehaviour
         if (villageHealth != null)
         {
             villageHealth.SetLevelIndex(0);
-            Debug.Log("LevelManager: villageHealth.SetLevelIndex(0) called");
+            villageHealth.ResetVillageDestroyed();
+            villageHealth.ResetHealth();
+            Debug.Log("LevelManager: villageHealth.SetLevelIndex(0) and ResetVillageDestroyed called");
         }
         else
         {
@@ -154,7 +163,8 @@ public class LevelManager : MonoBehaviour
     public void StopGame()
     {
         Debug.Log("LevelManager: StopGame called");
-        ResetManager();
+        gameStarted = false;
+        StopAllCoroutines();
         Debug.Log("LevelManager: Game stopped, all coroutines halted");
     }
 
@@ -168,7 +178,7 @@ public class LevelManager : MonoBehaviour
             Debug.Log($"LevelManager: NotifyEnemyReachedEnd called, enemiesReachedEnd={enemiesReachedEnd}, enemiesProcessed={enemiesProcessed}, enemiesInCurrentWave={enemiesInCurrentWave}, currentWave={currentWave}, activeEnemies={activeEnemies.Count}");
             if (villageHealth != null)
             {
-                villageHealth.TakeDamage(10); // Apply damage per enemy reaching end
+                villageHealth.TakeDamage(10);
             }
             else
             {
@@ -219,8 +229,9 @@ public class LevelManager : MonoBehaviour
                     ApplyWaveDamage();
                     if (villageHealth.GetCurrentHealth() <= 0)
                     {
-                        Debug.Log("LevelManager: Village destroyed, ending game");
+                        Debug.Log($"LevelManager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before loading MapScene");
                         StopGame();
+                        yield return new WaitForSeconds(loseSceneTransitionDelay);
                         SceneManager.LoadScene("MapScene");
                         yield break;
                     }

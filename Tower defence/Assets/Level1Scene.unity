@@ -718,6 +718,7 @@ MonoBehaviour:
     spawnDelay: 1.3
   villageHealth: {fileID: 640905895}
   waveDelay: 10
+  loseSceneTransitionDelay: 5
 --- !u!4 &157769559
 Transform:
   m_ObjectHideFlags: 0
