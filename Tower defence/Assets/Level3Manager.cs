@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,7 +27,7 @@ public class Level3Manager : MonoBehaviour
 
     [Header("Wave Delay")]
     public float waveDelay = 2f;
-    public float loseSceneTransitionDelay = 2f; // Задержка перед переходом в MapScene
+    public float loseSceneTransitionDelay = 2f; // Delay before showing result panel
 
     private int currentWave = 0;
     private bool waveInProgress = false;
@@ -157,7 +157,14 @@ public class Level3Manager : MonoBehaviour
             Debug.LogError("Level3Manager: villageHealth is null in StartGame!");
         }
         gameStarted = true;
-        StartCoroutine(StartWaves());
+        if (waves != null && waves.Count > 0)
+        {
+            StartCoroutine(StartWaves());
+        }
+        else
+        {
+            Debug.LogError("Level3Manager: waves is null or empty, cannot start waves!");
+        }
     }
 
     public void StopGame()
@@ -183,6 +190,15 @@ public class Level3Manager : MonoBehaviour
             else
             {
                 Debug.LogError("Level3Manager: villageHealth is null in NotifyEnemyReachedEnd!");
+            }
+            if (LevelsManager.Instance != null)
+            {
+                LevelsManager.Instance.NotifyEnemyReachedEnd();
+                Debug.Log("Level3Manager: Notified LevelsManager of enemy reaching end");
+            }
+            else
+            {
+                Debug.LogError("Level3Manager: LevelsManager.Instance is null in NotifyEnemyReachedEnd!");
             }
         }
         else
@@ -229,10 +245,20 @@ public class Level3Manager : MonoBehaviour
                     ApplyWaveDamage();
                     if (villageHealth.GetCurrentHealth() <= 0)
                     {
-                        Debug.Log($"Level3Manager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before loading MapScene");
+                        Debug.Log($"Level3Manager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before showing result panel");
                         StopGame();
                         yield return new WaitForSeconds(loseSceneTransitionDelay);
-                        SceneManager.LoadScene("MapScene");
+                        if (LevelsManager.Instance != null)
+                        {
+                            LevelsManager.Instance.NotifyLevelCompleted(villageHealth.IsVillageDestroyed());
+                            Debug.Log("Level3Manager: Notified LevelsManager of level completion (village destroyed)");
+                        }
+                        else
+                        {
+                            Debug.LogError("Level3Manager: LevelsManager.Instance is null, cannot notify level completion");
+                            SceneManager.LoadScene("MapScene");
+                        }
+                        gameStarted = false; // Ensure game stops
                         yield break;
                     }
                 }
@@ -255,16 +281,27 @@ public class Level3Manager : MonoBehaviour
             {
                 GameState.Instance.CompleteLevel(3);
                 Debug.Log("Level3Manager: Level 3 completed, notified GameState");
-                SceneManager.LoadScene("MapScene");
             }
             else
             {
                 Debug.LogError("Level3Manager: GameState.Instance is null, cannot complete level");
             }
+            if (LevelsManager.Instance != null)
+            {
+                LevelsManager.Instance.NotifyLevelCompleted(villageHealth.IsVillageDestroyed());
+                Debug.Log("Level3Manager: Notified LevelsManager of level completion (village not destroyed)");
+            }
+            else
+            {
+                Debug.LogError("Level3Manager: LevelsManager.Instance is null, cannot notify level completion");
+                SceneManager.LoadScene("MapScene");
+            }
+            gameStarted = false; // Ensure game stops
         }
         else
         {
             Debug.Log("Level3Manager: No more waves or village health <= 0, ending waves");
+            gameStarted = false; // Ensure game stops
         }
     }
 

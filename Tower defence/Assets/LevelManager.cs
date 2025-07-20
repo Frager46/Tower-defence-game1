@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
 
     [Header("Wave Delay")]
     public float waveDelay = 2f;
-    public float loseSceneTransitionDelay = 2f; // Задержка перед переходом в MapScene
+    public float loseSceneTransitionDelay = 2f; // Delay before showing result panel
 
     private int currentWave = 0;
     private bool waveInProgress = false;
@@ -157,7 +157,14 @@ public class LevelManager : MonoBehaviour
             Debug.LogError("LevelManager: villageHealth is null in StartGame!");
         }
         gameStarted = true;
-        StartCoroutine(StartWaves());
+        if (waves != null && waves.Count > 0)
+        {
+            StartCoroutine(StartWaves());
+        }
+        else
+        {
+            Debug.LogError("LevelManager: waves is null or empty, cannot start waves!");
+        }
     }
 
     public void StopGame()
@@ -183,6 +190,15 @@ public class LevelManager : MonoBehaviour
             else
             {
                 Debug.LogError("LevelManager: villageHealth is null in NotifyEnemyReachedEnd!");
+            }
+            if (LevelsManager.Instance != null)
+            {
+                LevelsManager.Instance.NotifyEnemyReachedEnd();
+                Debug.Log("LevelManager: Notified LevelsManager of enemy reaching end");
+            }
+            else
+            {
+                Debug.LogError("LevelManager: LevelsManager.Instance is null in NotifyEnemyReachedEnd!");
             }
         }
         else
@@ -218,8 +234,51 @@ public class LevelManager : MonoBehaviour
                 enemiesProcessed = 0;
                 activeEnemies.Clear();
                 yield return StartCoroutine(SpawnWave(waves[currentWave]));
+                float waveTimeout = Time.time + 60f; // Timeout after 60 seconds per wave
                 while (enemiesProcessed < enemiesInCurrentWave && gameStarted)
                 {
+                    // Check for destroyed or null enemies
+                    for (int i = activeEnemies.Count - 1; i >= 0; i--)
+                    {
+                        if (activeEnemies[i] == null)
+                        {
+                            enemiesProcessed++;
+                            activeEnemies.RemoveAt(i);
+                            Debug.Log($"LevelManager: Detected null enemy in activeEnemies, enemiesProcessed={enemiesProcessed}, activeEnemies={activeEnemies.Count}");
+                        }
+                    }
+                    // Log details of remaining enemies to diagnose stuck enemies
+                    if (activeEnemies.Count > 0)
+                    {
+                        foreach (GameObject enemy in activeEnemies)
+                        {
+                            if (enemy != null)
+                            {
+                                EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
+                                Vector3 position = enemy.transform.position;
+                                Debug.Log($"LevelManager: Active enemy {enemy.name} at position {position}, has EnemyMovement: {(movement != null)}");
+                            }
+                        }
+                    }
+                    // Timeout check for stuck enemies
+                    if (Time.time > waveTimeout && activeEnemies.Count > 0)
+                    {
+                        Debug.LogWarning($"LevelManager: Wave {currentWave + 1} timed out, forcing processing of {activeEnemies.Count} remaining enemies");
+                        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+                        {
+                            if (activeEnemies[i] != null)
+                            {
+                                Debug.Log($"LevelManager: Force-processing stuck enemy {activeEnemies[i].name}");
+                                enemiesProcessed++;
+                                Destroy(activeEnemies[i]); // Destroy stuck enemies
+                            }
+                            else
+                            {
+                                enemiesProcessed++;
+                            }
+                            activeEnemies.RemoveAt(i);
+                        }
+                    }
                     Debug.Log($"LevelManager: Waiting for wave {currentWave + 1} to complete, enemiesProcessed={enemiesProcessed}, enemiesInCurrentWave={enemiesInCurrentWave}, activeEnemies={activeEnemies.Count}");
                     yield return null;
                 }
@@ -229,10 +288,20 @@ public class LevelManager : MonoBehaviour
                     ApplyWaveDamage();
                     if (villageHealth.GetCurrentHealth() <= 0)
                     {
-                        Debug.Log($"LevelManager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before loading MapScene");
+                        Debug.Log($"LevelManager: Village destroyed, waiting {loseSceneTransitionDelay} seconds before showing result panel");
                         StopGame();
                         yield return new WaitForSeconds(loseSceneTransitionDelay);
-                        SceneManager.LoadScene("MapScene");
+                        if (LevelsManager.Instance != null)
+                        {
+                            LevelsManager.Instance.NotifyLevelCompleted(villageHealth.IsVillageDestroyed());
+                            Debug.Log("LevelManager: Notified LevelsManager of level completion (village destroyed)");
+                        }
+                        else
+                        {
+                            Debug.LogError("LevelManager: LevelsManager.Instance is null, cannot notify level completion");
+                            SceneManager.LoadScene("MapScene");
+                        }
+                        gameStarted = false; // Ensure game stops
                         yield break;
                     }
                 }
@@ -255,16 +324,27 @@ public class LevelManager : MonoBehaviour
             {
                 GameState.Instance.CompleteLevel(1);
                 Debug.Log("LevelManager: Level 1 completed, notified GameState");
-                SceneManager.LoadScene("MapScene");
             }
             else
             {
                 Debug.LogError("LevelManager: GameState.Instance is null, cannot complete level");
             }
+            if (LevelsManager.Instance != null)
+            {
+                LevelsManager.Instance.NotifyLevelCompleted(villageHealth.IsVillageDestroyed());
+                Debug.Log("LevelManager: Notified LevelsManager of level completion (village not destroyed)");
+            }
+            else
+            {
+                Debug.LogError("LevelManager: LevelsManager.Instance is null, cannot notify level completion");
+                SceneManager.LoadScene("MapScene");
+            }
+            gameStarted = false; // Ensure game stops
         }
         else
         {
             Debug.Log("LevelManager: No more waves or village health <= 0, ending waves");
+            gameStarted = false; // Ensure game stops
         }
     }
 
@@ -325,6 +405,17 @@ public class LevelManager : MonoBehaviour
         {
             enemyMovement.path = path;
             activeEnemies.Add(enemy);
+            // Ensure enemy notifies LevelManager on destruction
+            Health enemyHealth = enemy.GetComponent<Health>();
+            if (enemyHealth != null)
+            {
+                enemyHealth.OnEnemyDestroyed += NotifyEnemyDestroyed;
+                Debug.Log($"LevelManager: Enemy {enemy.name} created with Health, OnEnemyDestroyed subscribed");
+            }
+            else
+            {
+                Debug.LogWarning($"LevelManager: Enemy {enemy.name} missing Health component, destruction may not be tracked properly");
+            }
             Debug.Log($"LevelManager: Enemy created: {enemy.name}, path assigned, activeEnemies={activeEnemies.Count}");
         }
         else

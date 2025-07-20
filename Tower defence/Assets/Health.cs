@@ -10,6 +10,9 @@ public class Health : MonoBehaviour
 
     private bool isDying = false; // Флаг, чтобы избежать повторного вызова Die()
 
+    // Event to notify when the enemy is destroyed
+    public event System.Action<GameObject> OnEnemyDestroyed;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -40,6 +43,9 @@ public class Health : MonoBehaviour
             gameState.AddGold(goldReward);
         }
         Debug.Log($"{gameObject.name} уничтожен, награда: {goldReward} золота");
+
+        // Notify LevelManager before destruction
+        OnEnemyDestroyed?.Invoke(gameObject);
 
         StartCoroutine(DestroyAfterAnimation());
     }
